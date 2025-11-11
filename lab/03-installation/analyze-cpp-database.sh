@@ -31,7 +31,7 @@ codeql database analyze "$DB_DIR" \
     "$QUERY_SUITE" \
     --format=sarif-latest \
     --output="$RESULTS_DIR/cpp-results.sarif" \
-    --threads=4 \
+    --threads=$(nproc) \
     --ram=8192
 
 echo ""

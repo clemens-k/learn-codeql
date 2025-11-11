@@ -47,7 +47,4 @@ codeql database create "$DB_DIR" \
 echo ""
 echo "✅ Database created: $DB_DIR"
 echo ""
-echo "📊 Database info:"
-codeql database info "$DB_DIR"
-echo ""
 echo "Next: Run ./analyze-rust-database.sh to analyze"

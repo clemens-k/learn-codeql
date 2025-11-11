@@ -29,7 +29,7 @@
         "ms-vscode.cpptools",
         "ms-vscode.cmake-tools",
         "rust-lang.rust-analyzer",
-        "MS-SARIF.sarif-viewer"
+        "ms-sarifvscode.sarif-viewer"
       ],
       "settings": {
         "terminal.integrated.defaultProfile.linux": "zsh",
@@ -42,7 +42,7 @@
   "remoteUser": "vscode",
   
   "mounts": [
-    "source=${localWorkspaceFolder}/.codeql-home,target=/home/vscode/.codeql-home,type=bind,consistency=cached"
+    "source=codeql-home,target=/home/vscode/.codeql-home,type=volume"
   ],
   
   "hostRequirements": {
