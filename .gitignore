@@ -1,0 +1,5 @@
+# c++ cmake build related files
+build/
+
+# codeql related
+databases/

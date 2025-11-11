@@ -18,15 +18,14 @@ if [ ! -f "$CODEQL_HOME/codeql/codeql" ]; then
 fi
 
 # Build the project first
-echo "📦 Building C++ project..."
-cd "$PROJECT_DIR"
+echo "📦 Configuring C++ project..."
+pushd "$PROJECT_DIR"
 mkdir -p build
-cd build
-cmake .. -G Ninja
-ninja
-cd ../..
-
-echo "✓ Project built successfully"
+pushd build
+cmake .. -G Ninja --fresh
+popd
+popd
+echo "✓ Project configured successfully"
 echo ""
 
 # Create database directory
@@ -46,12 +45,9 @@ echo ""
 codeql database create "$DB_DIR" \
     --language=cpp \
     --source-root="$PROJECT_DIR" \
-    --command="ninja -C $PROJECT_DIR/build clean && ninja -C $PROJECT_DIR/build"
+    --command="ninja -C $PROJECT_DIR/build"
 
 echo ""
 echo "✅ Database created: $DB_DIR"
-echo ""
-echo "📊 Database info:"
-codeql database info "$DB_DIR"
 echo ""
 echo "Next: Run ./analyze-cpp-database.sh to analyze"
