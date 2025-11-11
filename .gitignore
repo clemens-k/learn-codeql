@@ -1,0 +1,10 @@
+# c++ cmake build related files
+build/
+
+# rust related files
+target/
+Cargo.lock
+
+# codeql related
+databases/
+results/
