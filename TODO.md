@@ -46,7 +46,7 @@ Create a comprehensive learning resource for CodeQL focusing on:
 
 ### 🦀 WP5: Rust Setup (Beginner)
 
-- [ ] `04-rust-setup.md`
+- [X] `04-rust-setup.md`
   - Rust-specific requirements
   - Creating CodeQL databases for Rust
   - Configuration for Rust projects
@@ -55,7 +55,7 @@ Create a comprehensive learning resource for CodeQL focusing on:
 
 ### 🔧 WP6: C++/CMake Setup (Beginner)
 
-- [ ] `05-cpp-cmake-setup.md`
+- [x] `05-cpp-cmake-setup.md`
   - C++ specific requirements
   - CMake integration
   - Creating CodeQL databases for C++
