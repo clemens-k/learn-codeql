@@ -110,7 +110,7 @@ See `lab/06-built-in-queries/README.md` for detailed instructions.
 Located in `lab/07-coding-standards/`, this lab covers MISRA and CERT compliance checking:
 
 - **Compliance Scripts**:
-  - `run-misra-checks.sh` - Run MISRA C++:2008 compliance checks
+  - `run-misra-checks.sh` - Run MISRA C++:2023 compliance checks
   - `run-cert-checks.sh` - Run CERT C/C++ secure coding checks
   - `generate-report.sh` - Generate comprehensive compliance reports
   - `filter-by-obligation.sh` - Filter MISRA results by obligation level
@@ -123,13 +123,40 @@ Located in `lab/07-coding-standards/`, this lab covers MISRA and CERT compliance
   - `compliance-suites/cert-security.qls` - Security-focused CERT rules
 
 - **Learning Focus**:
-  - Understanding MISRA C++:2008 and CERT C/C++ standards
-  - Running automated compliance checks
+  - Understanding MISRA C++:2023 and CERT C/C++ standards
+  - Running automated compliance checks with github/codeql-coding-standards
   - Filtering results by obligation level and category
   - Generating compliance reports for audits
   - Integrating standards checking in CI/CD pipelines
 
 See `lab/07-coding-standards/README.md` for detailed instructions.
+
+#### Lab 08: SARIF Output Processing
+
+Located in `lab/08-sarif-output/`, this lab teaches SARIF file processing and analysis:
+
+- **Processing Scripts**:
+  - `generate-sarif.sh` - Generate SARIF files from CodeQL analysis
+  - `analyze-sarif.sh` - Basic SARIF file analysis and statistics
+  - `filter-results.sh` - Filter by severity, rule, tag, precision, or file
+  - `compare-scans.sh` - Compare two SARIF files to track changes
+  - `create-baseline.sh` - Create and manage baseline SARIF files
+  - `merge-sarif.sh` - Merge multiple SARIF files with deduplication
+  - `generate-report.sh` - Create reports in summary, HTML, or CSV format
+  - `extract-metrics.sh` - Extract metrics for dashboards and tracking
+  - `quick-start.sh` - Interactive menu for quick lab access
+
+- **Learning Focus**:
+  - Understanding SARIF structure (runs, results, locations, metadata)
+  - Processing SARIF with jq for filtering and transformation
+  - Generating human-readable reports in multiple formats
+  - Creating baselines and tracking new findings over time
+  - Merging results from multiple scans
+  - Extracting metrics for dashboards and trend analysis
+  - Integrating SARIF processing in CI/CD pipelines
+  - Building quality gates and automated triage
+
+See `lab/08-sarif-output/README.md` for detailed instructions.
 
 ## 🚀 Quick Start
 

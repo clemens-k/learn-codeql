@@ -13,6 +13,7 @@ NC='\033[0m'
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CPP_DB="../05-cpp-cmake-setup/databases/test-cpp-db"
 RESULTS_DIR="$SCRIPT_DIR/results"
+CODING_STANDARDS="$HOME/.codeql-home/coding-standards"
 
 mkdir -p "$RESULTS_DIR"
 
@@ -26,33 +27,41 @@ if [ ! -d "$CPP_DB" ]; then
     exit 1
 fi
 
-# Run CERT compliance check
+# Check if coding standards are installed
+if [ ! -d "$CODING_STANDARDS/cpp/cert" ]; then
+    echo -e "${RED}Error: CodeQL coding standards not found!${NC}"
+    echo "Please run Lab 03 to install coding standards:"
+    echo "  cd ../03-installation && ./install-libraries.sh"
+    exit 1
+fi
+
+# Run CERT C/C++ compliance check
 echo "Analyzing: $CPP_DB"
-echo "Query suite: Using CodeQL cpp-queries with CERT tags"
+echo "Query pack: $CODING_STANDARDS/cpp/cert/src"
 echo ""
 
+# Find available query suite or use the query pack directly
+if [ -f "$CODING_STANDARDS/cpp/cert/src/codeql-suites/cert-cpp.qls" ]; then
+    QUERY_PATH="$CODING_STANDARDS/cpp/cert/src/codeql-suites/cert-cpp.qls"
+else
+    # Use the entire cert query pack
+    QUERY_PATH="$CODING_STANDARDS/cpp/cert/src"
+fi
+
 if codeql database analyze "$CPP_DB" \
-    codeql/cpp-queries \
+    "$QUERY_PATH" \
     --format=sarif-latest \
     --output="$RESULTS_DIR/cert-results.sarif" \
+    --search-path="$CODING_STANDARDS" \
     --threads=0 \
     2>&1 | grep -v "^$"; then
     
     echo -e "\n${GREEN}✓ Analysis complete${NC}\n"
 else
     echo -e "\n${RED}✗ Analysis failed${NC}\n"
+    echo "Note: Some CERT queries may require specific CodeQL version or configuration"
     exit 1
 fi
-
-# Filter to CERT-tagged results only
-echo "Filtering CERT-specific results..."
-jq '.runs[0].results |= 
-    map(select(.rule.properties.tags | 
-    any(startswith("external/cert"))))' \
-    "$RESULTS_DIR/cert-results.sarif" \
-    > "$RESULTS_DIR/cert-filtered.sarif"
-
-mv "$RESULTS_DIR/cert-filtered.sarif" "$RESULTS_DIR/cert-results.sarif"
 
 # Generate summary
 TOTAL=$(jq '.runs[0].results | length' "$RESULTS_DIR/cert-results.sarif")

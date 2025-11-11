@@ -60,24 +60,21 @@ echo ""
 echo -e "${CYAN}Findings by Precision:${NC}"
 jq -r '.runs[0].results | 
     group_by(.rule.properties.precision) | 
-    map("\(.[ 0].rule.properties.precision // "unknown"): \
-\(length) findings") | .[]' "$SARIF_FILE"
+    map("\(.[ 0].rule.properties.precision // "unknown"): \(length) findings") | .[]' "$SARIF_FILE"
 echo ""
 
 # Top issues
 echo -e "${CYAN}Top 10 Issues by Security Severity:${NC}"
 jq -r '.runs[0].results | 
+    map(select(.rule.properties."security-severity" != null)) |
     sort_by(-.rule.properties."security-severity") | 
     limit(10; .[]) | 
-    "[\(.rule.properties."security-severity" // "N/A" | 
-    tostring | .[0:4])] \(.ruleId)\n  \(.message.text)\n  Location: \
-\(.locations[0].physicalLocation.artifactLocation.uri):\
-\(.locations[0].physicalLocation.region.startLine)\n"' \
+    "[\(.rule.properties."security-severity" // "N/A" | tostring | .[0:4])] \(.ruleId)\n  \(.message.text)\n  Location: \(.locations[0].physicalLocation.artifactLocation.uri):\(.locations[0].physicalLocation.region.startLine)\n"' \
     "$SARIF_FILE"
 
 # Error-level issues
 echo -e "${CYAN}Error-Level Issues:${NC}"
-local error_count=$(jq '[.runs[0].results[] | 
+error_count=$(jq '[.runs[0].results[] | 
     select(.level == "error")] | length' "$SARIF_FILE")
 echo "Total: $error_count"
 echo ""
@@ -85,9 +82,7 @@ echo ""
 if [ "$error_count" -gt 0 ]; then
     jq -r '.runs[0].results[] | 
         select(.level == "error") | 
-        "🔴 \(.ruleId)\n   \(.message.text)\n   \
-\(.locations[0].physicalLocation.artifactLocation.uri):\
-\(.locations[0].physicalLocation.region.startLine)\n"' \
+        "🔴 \(.ruleId)\n   \(.message.text)\n   \(.locations[0].physicalLocation.artifactLocation.uri):\(.locations[0].physicalLocation.region.startLine)\n"' \
         "$SARIF_FILE" | head -20
 fi
 
@@ -96,8 +91,7 @@ echo -e "${CYAN}Summary Statistics:${NC}"
 echo "Total findings:     $(jq '.runs[0].results | length' "$SARIF_FILE")"
 echo "Unique rules:       $(jq '[.runs[0].results[].ruleId] | 
     unique | length' "$SARIF_FILE")"
-echo "Affected files:     $(jq '[.runs[0].results[].locations[].
-    physicalLocation.artifactLocation.uri] | 
+echo "Affected files:     $(jq '[.runs[0].results[].locations[].physicalLocation.artifactLocation.uri] | 
     unique | length' "$SARIF_FILE")"
 echo ""
 

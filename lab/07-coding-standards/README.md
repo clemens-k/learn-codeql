@@ -3,14 +3,14 @@
 ## 📖 Overview
 
 This lab provides hands-on experience with coding standards compliance
-using CodeQL. You'll learn how to run MISRA and CERT compliance
-checks, interpret results, and generate compliance reports.
+using CodeQL. You'll learn how to run MISRA C++:2023 and CERT C/C++ 
+compliance checks, interpret results, and generate compliance reports.
 
 ## 🎯 Learning Objectives
 
 By completing this lab, you will:
 
-- ✓ Run MISRA C++:2008 compliance checks
+- ✓ Run MISRA C++:2023 compliance checks
 - ✓ Run CERT C/C++ secure coding checks
 - ✓ Interpret compliance violations by obligation level
 - ✓ Generate compliance reports and matrices
@@ -23,7 +23,7 @@ By completing this lab, you will:
 Before starting, ensure you have:
 
 1. **Completed previous labs**:
-   - Lab 03: Installation & Configuration
+   - Lab 03: Installation & Configuration (including coding standards)
    - Lab 05: C++ and CMake Setup
 
 2. **C++ database created**:
@@ -31,9 +31,16 @@ Before starting, ensure you have:
    ls -la ../05-cpp-cmake-setup/databases/test-cpp-db
    ```
 
-3. **CodeQL query packs downloaded**:
+3. **CodeQL coding standards installed**:
    ```bash
-   codeql pack download codeql/cpp-queries
+   ls -la ~/.codeql-home/coding-standards/cpp/misra
+   ls -la ~/.codeql-home/coding-standards/cpp/cert
+   ```
+
+   If not installed, run:
+   ```bash
+   cd ../03-installation
+   ./install-libraries.sh
    ```
 
 ## 📁 Lab Structure
@@ -62,7 +69,7 @@ lab/07-coding-standards/
 
 ## 🚀 Exercise 1: Run MISRA Compliance Checks
 
-Learn to run and interpret MISRA C++:2008 compliance checks.
+Learn to run and interpret MISRA C++:2023 compliance checks.
 
 ### Step 1: Quick Start
 
@@ -80,17 +87,17 @@ Select option 1 to run MISRA checks on the test project.
 ```
 
 This script will:
-- Run MISRA compliance checks on the C++ test project
+- Run MISRA C++:2023 compliance checks on the C++ test project
 - Generate SARIF output with all MISRA violations
 - Create a summary report
 
 **Expected output:**
 
 ```text
-🔍 Running MISRA C++:2008 Compliance Checks...
+🔍 Running MISRA C++:2023 Compliance Checks...
 
 Analyzing ../05-cpp-cmake-setup/databases/test-cpp-db
-Query suite: compliance-suites/misra-all.qls
+Query suite: ~/.codeql-home/coding-standards/cpp/misra/src
 
 ✓ Analysis complete
 
@@ -212,16 +219,16 @@ This creates:
 =====================================
 Generated: 2024-11-11 14:30:00
 
-MISRA C++:2008 Compliance
---------------------------
+MISRA C++:2023 Compliance
+-------------------------
 Total Violations: 25
   Required:       18 (Priority: CRITICAL)
   Advisory:       7  (Priority: Review)
 
 Top Violations:
-  1. Rule 5-0-1: Expression value consistency (5 occurrences)
-  2. Rule 6-4-1: If-else termination (4 occurrences)
-  3. Rule 8-5-1: Visible declarations (3 occurrences)
+  1. Rule 6-5-1: Single loop counter (5 occurrences)
+  2. Rule 9-3-1: const correctness (4 occurrences)
+  3. Rule 10-1-1: Safe type conversions (3 occurrences)
 
 CERT C/C++ Compliance
 ---------------------
@@ -294,12 +301,13 @@ Build custom query suites for specific compliance needs.
 Pre-made suite in `compliance-suites/misra-required.qls`:
 
 ```yaml
-# MISRA Required Rules Only
-- description: "MISRA C++:2008 Required Rules (Critical)"
+# MISRA C++:2023 Required Rules Only
+- description: "MISRA C++:2023 Required Rules (Critical)"
 - queries: .
-- from: codeql/cpp-queries
+- from: ~/.codeql-home/coding-standards/cpp/misra/src
 - include:
     tags:
+      - external/misra/cpp/2023
       - external/misra/obligation/required
     precision:
       - very-high
@@ -307,6 +315,7 @@ Pre-made suite in `compliance-suites/misra-required.qls`:
 - exclude:
     tags:
       - experimental
+      - undecidable
 ```
 
 Run it:
@@ -316,7 +325,8 @@ codeql database analyze \
     ../05-cpp-cmake-setup/databases/test-cpp-db \
     compliance-suites/misra-required.qls \
     --format=sarif-latest \
-    --output=results/misra-required-only.sarif
+    --output=results/misra-required-only.sarif \
+    --search-path ~/.codeql-home/coding-standards
 ```
 
 ### Step 3: CERT Security-Critical Rules
@@ -327,7 +337,7 @@ Pre-made suite in `compliance-suites/cert-security.qls`:
 # CERT Security-Critical Rules
 - description: "CERT C/C++ Security-Critical Rules"
 - queries: .
-- from: codeql/cpp-queries
+- from: ~/.codeql-home/coding-standards/cpp/cert/src
 - include:
     tags:
       - external/cert/c/rule
@@ -348,7 +358,8 @@ codeql database analyze \
     ../05-cpp-cmake-setup/databases/test-cpp-db \
     compliance-suites/cert-security.qls \
     --format=sarif-latest \
-    --output=results/cert-security-only.sarif
+    --output=results/cert-security-only.sarif \
+    --search-path ~/.codeql-home/coding-standards
 ```
 
 ## 📝 Exercise 5: Document Rule Deviations
@@ -502,12 +513,12 @@ Target: <10 violations by 2024-12-01
 
 ### MISRA Violations in Test Project
 
-The test C++ project should trigger these MISRA rules:
+The test C++ project should trigger these MISRA C++:2023 rules:
 
-- **Rule 5-0-1**: Expression value consistency
-- **Rule 6-4-1**: If-else termination
-- **Rule 8-5-1**: Visible identifier declarations
-- **Rule 15-3-1**: Exception specifications
+- **Rule 6-5-1**: Single loop counter requirement
+- **Rule 9-3-1**: const member function correctness
+- **Rule 10-1-1**: Safe type conversions
+- **Rule 15-1-2**: NULL pointer dereference checks
 
 ### CERT Violations in Test Project
 
@@ -564,11 +575,16 @@ After completing this lab, you should understand:
 
 **No MISRA/CERT queries found?**
 ```bash
-# Check if query pack is downloaded
-codeql pack download codeql/cpp-queries
+# Check if coding standards are installed
+ls -la ~/.codeql-home/coding-standards/cpp/misra
+ls -la ~/.codeql-home/coding-standards/cpp/cert
 
-# Verify queries exist
-find ~/.codeql-home/codeql-repo -name "*misra*" -o -name "*cert*"
+# If not found, install them
+cd ../03-installation
+./install-libraries.sh
+
+# Verify installation
+find ~/.codeql-home/coding-standards -name "*.ql" | head -10
 ```
 
 **Too many violations?**
@@ -587,8 +603,10 @@ find ~/.codeql-home/codeql-repo -name "*misra*" -o -name "*cert*"
 
 ## 📚 Additional Resources
 
-- [MISRA C++:2008 Guidelines](https://www.misra.org.uk/)
+- [MISRA C++:2023 Guidelines](https://www.misra.org.uk/)
+- [MISRA C:2012 Guidelines](https://www.misra.org.uk/)
 - [CERT C/C++ Coding Standards](https://wiki.sei.cmu.edu/confluence/display/c)
+- [GitHub CodeQL Coding Standards](https://github.com/github/codeql-coding-standards)
 - [CodeQL Standard Libraries](https://codeql.github.com/codeql-standard-libraries/cpp/)
 
 ## ⏭️ Next Steps

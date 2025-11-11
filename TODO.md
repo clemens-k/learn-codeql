@@ -90,13 +90,21 @@ Create a comprehensive learning resource for CodeQL focusing on:
 
 ### 📄 WP9: SARIF Output Format (Beginner → Intermediate)
 
-- [ ] `08-sarif-output.md`
+- [x] `08-sarif-output.md`
   - What is SARIF?
   - SARIF structure and format
   - Viewing and processing SARIF files
   - Other output formats supported by CodeQL
   - Integrating with CI/CD
   - Tooling ecosystem
+- [x] Lab 08: SARIF Output Processing
+  - SARIF file structure exploration
+  - Filtering and analyzing results with jq
+  - Generating reports (summary, HTML, CSV)
+  - Baseline management and comparison
+  - Merging multiple SARIF files
+  - Metrics extraction and dashboards
+  - CI/CD integration patterns
 
 ### 🔧 WP10: Advanced Configuration (Intermediate → Advanced)
 

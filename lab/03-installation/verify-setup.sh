@@ -1,7 +1,8 @@
 #!/bin/bash
 # Comprehensive verification script for CodeQL setup
 
-set -e
+# Don't exit on errors - we want to check everything
+# set -e  # REMOVED: We want to continue even if some checks fail
 
 CODEQL_HOME="$HOME/.codeql-home"
 PASSED=0
@@ -45,7 +46,7 @@ fi
 echo ""
 echo "2️⃣  Checking PATH configuration..."
 if command -v codeql &> /dev/null; then
-    VERSION=$(codeql version 2>&1 | head -n 1)
+    VERSION=$(codeql version 2>&1 | head -n 1 || echo "Version check failed")
     check_pass "CodeQL accessible from PATH"
     check_info "Version: $VERSION"
 else
@@ -71,7 +72,38 @@ else
     check_fail "Standard libraries not found"
 fi
 
-# Check 4: VS Code settings
+# Check 4: Coding standards (MISRA & CERT)
+echo ""
+echo "3️⃣b Checking coding standards..."
+if [ -d "$CODEQL_HOME/coding-standards" ]; then
+    check_pass "Coding standards repository found"
+    
+    # Check MISRA and CERT
+    if [ -d "$CODEQL_HOME/coding-standards/cpp/misra" ]; then
+        check_pass "  MISRA C++ queries present"
+    else
+        check_fail "  MISRA C++ queries missing"
+    fi
+    
+    if [ -d "$CODEQL_HOME/coding-standards/cpp/cert" ]; then
+        check_pass "  CERT C++ queries present"
+    else
+        check_fail "  CERT C++ queries missing"
+    fi
+    
+    # Check pack dependencies
+    if [ -d "$HOME/.codeql/packages/codeql/cpp-all" ]; then
+        check_pass "  Pack dependencies installed"
+    else
+        check_warn "  Pack dependencies not installed"
+        check_info "  Run: cd coding-standards/cpp/misra/src && codeql pack install"
+    fi
+else
+    check_fail "Coding standards not found"
+    check_info "  Run ./install-libraries.sh to install"
+fi
+
+# Check 5: VS Code settings
 echo ""
 echo "4️⃣  Checking VS Code configuration..."
 VSCODE_SETTINGS="$HOME/.vscode-server/data/Machine/settings.json"
@@ -89,21 +121,6 @@ if [ -f "$VSCODE_SETTINGS" ]; then
     fi
 else
     check_fail "VS Code settings not found"
-fi
-
-# Check 5: Test projects
-echo ""
-echo "5️⃣  Checking test projects..."
-if [ -d "test-cpp-project" ]; then
-    check_pass "C++ test project found"
-else
-    check_fail "C++ test project not found"
-fi
-
-if [ -d "test-rust-project" ]; then
-    check_pass "Rust test project found"
-else
-    check_fail "Rust test project not found"
 fi
 
 # Check 6: Build tools

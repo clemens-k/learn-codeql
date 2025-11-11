@@ -89,14 +89,27 @@ Clone the CodeQL standard query libraries:
 This will:
 
 1. Clone `github/codeql` repository
-2. Place it in `~/.codeql-home/codeql-repo`
-3. Give you access to built-in queries for all languages
+2. Clone `github/codeql-coding-standards` repository (MISRA & CERT)
+3. Install pack dependencies for coding standards
+4. Place them in `~/.codeql-home/`
+
+**What gets installed:**
+
+- **codeql-repo**: Standard libraries and queries for all languages
+- **coding-standards**: MISRA C++:2023 and CERT C++ compliance queries
+- **Pack dependencies**: Required libraries (cpp-all, dataflow, util, etc.)
 
 **✅ Verification:**
 
 ```bash
 ls ~/.codeql-home/codeql-repo
 # Expected: cpp/ rust/ python/ java/ javascript/ ...
+
+ls ~/.codeql-home/coding-standards/cpp
+# Expected: misra/ cert/
+
+ls ~/.codeql/packages/codeql
+# Expected: cpp-all/ dataflow/ util/ ...
 ```
 
 ---
@@ -255,12 +268,115 @@ This checks:
 - ✓ CodeQL CLI installed and in PATH
 - ✓ Correct version
 - ✓ Standard libraries present
+- ✓ Coding standards (MISRA & CERT) present
 - ✓ VS Code extension configured
 - ✓ Can create C++ database
 - ✓ Can create Rust database
 - ✓ Can run queries
 
 Expected output: All checks pass with ✓
+
+---
+
+## ⚡ Exercise 7: Pre-Compile Queries (Optional but Recommended)
+
+**Why pre-compile?** The first time you run a CodeQL query, it needs to be 
+compiled, which can take 30 seconds to 10+ minutes depending on complexity.
+Pre-compiling queries warms up the cache so subsequent analyses are instant!
+
+**Performance benefit:**
+- First run with cold cache: 2-10 minutes compilation + analysis time
+- Subsequent runs: Analysis time only (seconds to minutes)
+- Cache is shared across all databases and projects
+
+**Run the compilation script:**
+
+```bash
+./compile-queries.sh
+```
+
+This script will:
+1. Find all `.qls` suites from standard libraries
+2. Find all MISRA and CERT compliance queries
+3. Compile them (unfortunately codeql does it single-threaded)
+4. Store compiled queries in `~/.codeql/compile-cache`
+
+**What to expect:**
+
+```text
+Compiling C++ Standard Queries
+Found 250 query files
+
+✓ Compiled: Security/CWE/CWE-119/BufferOverflow.ql
+✓ Compiled: Security/CWE/CWE-020/InputValidation.ql
+✓ Compiled: BestPractices/Likely Bugs/NullPointerDereference.ql
+...
+
+Compiling MISRA C++ Compliance Queries
+Found 180 query files
+...
+
+Summary:
+  Successfully compiled: 850
+  Failed:                12
+  Total:                 862
+  
+  Time taken: 15m 30s
+  Compilation cache size: 2.3GB
+  
+🎉 Query cache warmed successfully!
+```
+
+**✅ Verification:**
+
+Check that the cache was created:
+
+```bash
+ls -lh ~/.codeql/compile-cache
+du -sh ~/.codeql/compile-cache
+```
+
+---
+
+## ✅ Exercise 8: Test Query Performance
+
+Compare analysis speed with and without pre-compiled cache.
+
+**Test without cache (clean state):**
+
+```bash
+# Clear the cache
+rm -rf ~/.codeql/compile-cache
+
+# Time the analysis
+time codeql database analyze \
+    databases/test-cpp-db \
+    ~/.codeql-home/codeql-repo/cpp/ql/src/codeql-suites/cpp-security-extended.qls \
+    --format=sarif-latest \
+    --output=results/timing-test-cold.sarif
+
+# Note the time, especially "Compiling query plan" phase
+```
+
+**Now with pre-compiled cache:**
+
+```bash
+# Run the compilation script
+./compile-queries.sh
+
+# Time the analysis again
+time codeql database analyze \
+    databases/test-cpp-db \
+    ~/.codeql-home/codeql-repo/cpp/ql/src/codeql-suites/cpp-security-extended.qls \
+    --format=sarif-latest \
+    --output=results/timing-test-warm.sarif
+
+# "Compiling query plan" should be nearly instant!
+```
+
+**Expected difference:**
+- Cold cache: 30-120 seconds compilation + analysis time
+- Warm cache: <1 second compilation + analysis time
 
 ---
 

@@ -114,22 +114,22 @@ echo -e "${CYAN}=== Cross-Suite Analysis ===${NC}"
 echo ""
 
 for lang_prefix in cpp rust; do
-    local scanning="$RESULTS_DIR/${lang_prefix}-code-scanning.sarif"
-    local quality="$RESULTS_DIR/${lang_prefix}-security-and-quality.sarif"
-    local extended="$RESULTS_DIR/${lang_prefix}-security-extended.sarif"
+    scanning="$RESULTS_DIR/${lang_prefix}-code-scanning.sarif"
+    quality="$RESULTS_DIR/${lang_prefix}-security-and-quality.sarif"
+    extended="$RESULTS_DIR/${lang_prefix}-security-extended.sarif"
     
     if [ -f "$scanning" ] && [ -f "$quality" ] && [ -f "$extended" ]; then
         echo "${lang_prefix^^} Unique Findings:"
         
         # Rules in extended but not in quality
-        local extended_only=$(comm -13 \
+        extended_only=$(comm -13 \
             <(jq -r '.runs[0].results[].ruleId' "$quality" | sort | uniq) \
             <(jq -r '.runs[0].results[].ruleId' "$extended" | sort | uniq) \
             | wc -l)
         echo "  Extended-only rules: $extended_only"
         
         # Rules in quality but not in scanning
-        local quality_only=$(comm -13 \
+        quality_only=$(comm -13 \
             <(jq -r '.runs[0].results[].ruleId' "$scanning" | sort | uniq) \
             <(jq -r '.runs[0].results[].ruleId' "$quality" | sort | uniq) \
             | wc -l)

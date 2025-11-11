@@ -27,9 +27,9 @@ standards checking into your development workflow.
 **Purpose**: Safety-critical software development guidelines
 
 **Versions**:
-- **MISRA C:2012** (Amendment 1: 2016, Amendment 2: 2020)
-- **MISRA C++:2008** (with C++14 update)
-- **MISRA C:2023** (latest, expanded coverage)
+- **MISRA C:2012** (Amendment 1: 2016, Amendment 2: 2020, Amendment 3: 2024)
+- **MISRA C:2023** (latest, expanded coverage and modernization)
+- **MISRA C++:2023** (latest, replaces C++:2008, supports modern C++)
 
 **Focus Areas**:
 - Memory safety
@@ -38,7 +38,14 @@ standards checking into your development workflow.
 - Defensive programming
 - Predictable behavior
 
-**Common in**: Automotive, aerospace, medical devices
+**Common in**: Automotive, aerospace, medical devices, industrial systems
+
+**What's New in MISRA C++:2023**:
+- Modern C++ support (C++11, C++14, C++17 features)
+- Enhanced memory safety rules
+- Improved guidance for templates and smart pointers
+- Better undefined behavior coverage
+- Clearer automation guidance
 
 ### CERT (Computer Emergency Response Team)
 
@@ -62,36 +69,70 @@ standards checking into your development workflow.
 
 ## 📦 Available Query Packs
 
+### CodeQL Coding Standards Repository
+
+CodeQL provides dedicated compliance query packs through the official
+**GitHub CodeQL Coding Standards** repository:
+
+**Repository**: <https://github.com/github/codeql-coding-standards>
+
+**Installation** (covered in Tutorial 03):
+```bash
+cd ~/.codeql-home
+git clone https://github.com/github/codeql-coding-standards.git \
+  coding-standards
+```
+
+This repository provides:
+- MISRA C:2012 queries
+- MISRA C++:2023 queries
+- CERT C queries
+- CERT C++ queries
+- Pre-configured compliance suites
+- Standards documentation
+
 ### MISRA Query Packs
 
-CodeQL provides query packs for MISRA compliance:
-
-**C++ MISRA Support**:
+**Available Packs**:
 ```bash
-codeql/cpp-queries                    # Includes MISRA queries
+# MISRA C:2012
+coding-standards/c/misra/src/
+
+# MISRA C++:2023  
+coding-standards/cpp/misra/src/
 ```
 
 **Coverage**:
-- MISRA C++:2008 rules
-- Selected MISRA C:2012 rules for C code
-- Automated checks for ~140+ rules
+- MISRA C:2012 - ~200+ rules (150+ automated)
+- MISRA C++:2023 - ~250+ rules (170+ automated)
+- Automated checks for decidable rules
 - Manual review guidance for non-automatable rules
 
+**Rule Categories**:
+- **Required**: Must be followed (violations block release)
+- **Advisory**: Should be followed (violations need justification)
+- **Decidable**: Can be fully automated
+- **Undecidable**: Require manual review
+
 **Note**: Full MISRA compliance requires both automated checks and
-manual code review. CodeQL automates what's feasible.
+manual code review. CodeQL automates all decidable rules.
 
 ### CERT Query Packs
 
-**C++ CERT Support**:
+**Available Packs**:
 ```bash
-codeql/cpp-queries                    # Includes CERT queries
+# CERT C  
+coding-standards/c/cert/src/
+
+# CERT C++
+coding-standards/cpp/cert/src/
 ```
 
 **Coverage**:
-- CERT C Coding Standard rules
-- CERT C++ Coding Standard rules
-- ~100+ automated rules
+- CERT C Coding Standard - ~100+ automated rules
+- CERT C++ Coding Standard - ~90+ automated rules
 - Focus on security and reliability
+- Covers undefined behavior and common vulnerabilities
 
 ---
 
@@ -102,23 +143,25 @@ codeql/cpp-queries                    # Includes CERT queries
 #### List Available MISRA Queries
 
 ```bash
-# Find MISRA queries in the repository
-find $CODEQL_HOME/codeql-repo/cpp/ql/src -name "*misra*" -o -name "*MISRA*"
+# Find MISRA C++:2023 queries
+find ~/.codeql-home/coding-standards/cpp/misra/src -name "*.ql"
 
-# Search by tag
-grep -r "external/misra" $CODEQL_HOME/codeql-repo/cpp/ql/src
+# Find MISRA C:2012 queries
+find ~/.codeql-home/coding-standards/c/misra/src -name "*.ql"
+
+# View available query suites
+ls ~/.codeql-home/coding-standards/cpp/misra/src/codeql-suites/
 ```
 
-#### Run MISRA Checks
+#### Run MISRA C++:2023 Checks
 
-**Option 1: Use Tagged Queries**
+**Option 1: Use Pre-configured Suite**
 
 ```bash
 codeql database analyze cpp-db \
-    codeql/cpp-queries \
+    ~/.codeql-home/coding-standards/cpp/misra/src/codeql-suites/misra-cpp-2023.qls \
     --format=sarif-latest \
-    --output=misra-results.sarif \
-    -- --include-tags misra
+    --output=misra-results.sarif
 ```
 
 **Option 2: Custom MISRA Suite**
@@ -126,15 +169,18 @@ codeql database analyze cpp-db \
 Create `misra-compliance.qls`:
 
 ```yaml
-# MISRA C++:2008 Compliance Suite
-- description: "MISRA C++ compliance checks"
+# MISRA C++:2023 Compliance Suite
+- description: "MISRA C++:2023 compliance checks"
 - queries: .
-- from: codeql/cpp-queries
+- from: ~/.codeql-home/coding-standards/cpp/misra/src
 - include:
     tags:
-      - external/misra/obligation/rule
+      - external/misra/cpp/2023
       - external/misra/obligation/required
       - external/misra/obligation/advisory
+- exclude:
+    tags:
+      - undecidable
 ```
 
 Run the suite:
@@ -143,7 +189,8 @@ Run the suite:
 codeql database analyze cpp-db \
     misra-compliance.qls \
     --format=sarif-latest \
-    --output=misra-results.sarif
+    --output=misra-results.sarif \
+    --search-path ~/.codeql-home/coding-standards
 ```
 
 #### MISRA Rule Categories
@@ -168,28 +215,41 @@ jq '.runs[0].results |=
     misra-results.sarif > misra-advisory.sarif
 ```
 
+**Filter by decidability**:
+
+```bash
+# Decidable (automated) rules only
+jq '.runs[0].results |= 
+    map(select(.rule.properties.tags | 
+    contains(["decidable"]) and 
+    (contains(["undecidable"]) | not)))' \
+    misra-results.sarif > misra-decidable.sarif
+```
+
 ### CERT Compliance
 
 #### List Available CERT Queries
 
 ```bash
-# Find CERT queries
-find $CODEQL_HOME/codeql-repo/cpp/ql/src -path "*/CERT/*"
+# Find CERT C++ queries
+find ~/.codeql-home/coding-standards/cpp/cert/src -name "*.ql"
 
-# Search by tag
-grep -r "external/cert" $CODEQL_HOME/codeql-repo/cpp/ql/src
+# Find CERT C queries
+find ~/.codeql-home/coding-standards/c/cert/src -name "*.ql"
+
+# View available query suites
+ls ~/.codeql-home/coding-standards/cpp/cert/src/codeql-suites/
 ```
 
 #### Run CERT Checks
 
-**Option 1: Use Tagged Queries**
+**Option 1: Use Pre-configured Suite**
 
 ```bash
 codeql database analyze cpp-db \
-    codeql/cpp-queries \
+    ~/.codeql-home/coding-standards/cpp/cert/src/codeql-suites/cert-cpp.qls \
     --format=sarif-latest \
-    --output=cert-results.sarif \
-    -- --include-tags cert
+    --output=cert-results.sarif
 ```
 
 **Option 2: Custom CERT Suite**
@@ -200,7 +260,7 @@ Create `cert-compliance.qls`:
 # CERT C/C++ Compliance Suite
 - description: "CERT C/C++ secure coding checks"
 - queries: .
-- from: codeql/cpp-queries
+- from: ~/.codeql-home/coding-standards/cpp/cert/src
 - include:
     tags:
       - external/cert/c/rule
@@ -208,6 +268,9 @@ Create `cert-compliance.qls`:
     precision:
       - very-high
       - high
+- exclude:
+    tags:
+      - experimental
 ```
 
 Run the suite:
@@ -216,7 +279,8 @@ Run the suite:
 codeql database analyze cpp-db \
     cert-compliance.qls \
     --format=sarif-latest \
-    --output=cert-results.sarif
+    --output=cert-results.sarif \
+    --search-path ~/.codeql-home/coding-standards
 ```
 
 #### CERT Rule Categories
@@ -256,19 +320,39 @@ jq '.runs[0].results |=
 **Result Format**:
 
 ```json
+**Result Format**:
+
+```json
 {
-  "ruleId": "cpp/misra/rule-5-0-1",
+  "ruleId": "cpp/misra/rule-6-5-1",
   "message": {
-    "text": "The value of an expression shall be the same under..."
+    "text": "A for loop shall contain a single loop-counter..."
   },
   "properties": {
     "tags": [
-      "external/misra/c++/2008/rule-5-0-1",
+      "external/misra/cpp/2023/rule-6-5-1",
       "external/misra/obligation/required",
+      "decidable",
       "correctness"
     ]
   }
 }
+```
+
+**Rule ID Format**: `cpp/misra/rule-X-Y-Z`
+- X = Category number
+- Y = Subcategory
+- Z = Rule number within subcategory
+
+**Example MISRA C++:2023 Rules**:
+
+| Rule ID | Obligation | Description |
+|---------|------------|-------------|
+| 6-5-1 | Required | Single loop counter in for loop |
+| 8-4-2 | Required | Function parameters shall be identifiable |
+| 9-3-1 | Required | const member functions shall not modify object |
+| 10-1-1 | Required | Implicit conversions shall not lose information |
+| 15-1-2 | Required | NULL pointer shall not be dereferenced |
 ```
 
 **Rule ID Format**: `cpp/misra/rule-X-Y-Z`
@@ -495,11 +579,12 @@ jq --slurpfile baseline baseline.sarif \
 
 Start with high-impact rules:
 
-**MISRA Priority Rules**:
-- 5-0-1: Expression value consistency
-- 6-4-1: If-else termination
-- 8-5-1: Visible declarations
-- 15-3-1: Exception specifications
+**MISRA C++:2023 Priority Rules**:
+- 6-5-1: Single loop counter
+- 8-4-2: Function parameter identifiability
+- 9-3-1: const correctness
+- 10-1-1: Safe type conversions
+- 15-1-2: NULL pointer checks
 
 **CERT Priority Rules**:
 - arr30-c: Array bounds
@@ -651,36 +736,58 @@ See `lab/07-coding-standards/README.md` for detailed instructions.
 
 ### MISRA Examples
 
-**Rule 5-0-1: Expression Value Consistency**
+**Rule 6-5-1: Single Loop Counter**
 
 ```cpp
-// ❌ Violation
-int a = 1;
-int b = a++ + a;  // Unspecified behavior
+// ❌ Violation (MISRA C++:2023)
+for (int i = 0, j = 0; i < 10; i++, j++) {
+    // Multiple loop counters
+    array[i] = j;
+}
 
 // ✅ Compliant
-int a = 1;
-a++;
-int b = a + a;
+for (int i = 0; i < 10; i++) {
+    array[i] = i;
+}
 ```
 
-**Rule 6-4-1: If-Else Termination**
+**Rule 9-3-1: const Correctness**
 
 ```cpp
 // ❌ Violation
-if (condition) {
-    // ...
-} else if (other) {
-    // ...
-}  // Missing final else
+class MyClass {
+    int value;
+public:
+    void getValue() const {
+        value = 42;  // Modifying in const function
+    }
+};
 
 // ✅ Compliant
-if (condition) {
-    // ...
-} else if (other) {
-    // ...
-} else {
-    // Default case
+class MyClass {
+    mutable int cache;
+    int value;
+public:
+    void getValue() const {
+        cache = value;  // OK: mutable member
+    }
+    void setValue(int v) {
+        value = v;  // Non-const function
+    }
+};
+```
+
+**Rule 10-1-1: Safe Type Conversions**
+
+```cpp
+// ❌ Violation
+int32_t a = 100000;
+int16_t b = a;  // Implicit narrowing conversion
+
+// ✅ Compliant
+int32_t a = 100000;
+if (a >= INT16_MIN && a <= INT16_MAX) {
+    int16_t b = static_cast<int16_t>(a);
 }
 ```
 
