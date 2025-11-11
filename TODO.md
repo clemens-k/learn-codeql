@@ -65,7 +65,7 @@ Create a comprehensive learning resource for CodeQL focusing on:
 
 ### 🔍 WP7: Using Built-in Query Suites (Beginner)
 
-- [ ] `06-built-in-queries.md`
+- [x] `06-built-in-queries.md`
   - Overview of standard query packs
   - Security queries
   - Code quality queries
@@ -74,13 +74,19 @@ Create a comprehensive learning resource for CodeQL focusing on:
 
 ### 📏 WP8: MISRA & CERT Guidelines (Beginner → Intermediate)
 
-- [ ] `07-coding-standards.md`
+- [x] `07-coding-standards.md`
   - MISRA C/C++ guidelines support
   - CERT coding standards
   - Available query packs
   - Running compliance checks
   - Configuration for standards
   - Reporting and compliance
+- [x] Lab 07: Coding Standards Compliance
+  - MISRA C++:2008 compliance checking
+  - CERT C/C++ secure coding checks
+  - Compliance reporting and filtering
+  - Custom compliance query suites
+  - CI/CD integration examples
 
 ### 📄 WP9: SARIF Output Format (Beginner → Intermediate)
 

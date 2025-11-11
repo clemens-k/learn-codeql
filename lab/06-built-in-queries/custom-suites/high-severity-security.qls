@@ -1,0 +1,21 @@
+# High Severity Security Issues (>= 8.0)
+# Recommended for: Production security audits, release gates
+
+- description: "High severity security issues only"
+- queries: .
+- from:
+    - codeql/cpp-queries
+    - codeql/rust-queries
+- include:
+    tags:
+      - security
+    precision:
+      - very-high
+      - high
+- exclude:
+    tags:
+      - experimental
+    query path:
+      - "**/test/**"
+      - "**/tests/**"
+      - "**/benchmark/**"

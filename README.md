@@ -36,6 +36,18 @@ tutorials and practical labs for analyzing code with CodeQL.
    - Running security and quality queries
    - Understanding SARIF output format
 
+5. **[05-cpp-cmake-setup.md](05-cpp-cmake-setup.md)** - C++ and CMake Setup for CodeQL
+   - C++-specific requirements and compiler support
+   - CMake integration and build system configuration
+   - Creating CodeQL databases for C++ projects
+   - Running built-in security queries
+
+6. **[06-built-in-queries.md](06-built-in-queries.md)** - Using Built-in Query Suites
+   - Understanding query packs and query suites
+   - Available suites for C++ and Rust (code-scanning, security-and-quality, security-extended)
+   - Running and customizing query execution
+   - Interpreting results by severity and precision
+
 ### Hands-On Labs
 
 #### Lab 03: Installation & Configuration
@@ -73,6 +85,51 @@ Located in `lab/05-cpp-cmake-setup/`, this lab focuses on C++ project analysis:
 
 - **Test Project**:
   - `test-cpp-project/` - C++ project with intentional vulnerabilities including buffer overflow, null pointer dereference, memory leak, use after free, integer overflow, and command injection
+
+#### Lab 06: Using Built-in Query Suites
+
+Located in `lab/06-built-in-queries/`, this lab teaches effective use of query suites:
+
+- **Automated Scripts**:
+  - `run-all-suites.sh` - Run all query suites (code-scanning, security-and-quality, security-extended)
+  - `compare-suites.sh` - Compare results across different suites
+  - `analyze-by-severity.sh` - Analyze findings by severity and precision
+  - `filter-results.sh` - Filter SARIF results by various criteria
+  - `create-custom-suite.sh` - Generate custom query suite configurations
+
+- **Learning Focus**:
+  - Understanding when to use each query suite
+  - Interpreting severity levels and precision ratings
+  - Creating custom query suites for specific needs
+  - Comparing and filtering analysis results
+
+See `lab/06-built-in-queries/README.md` for detailed instructions.
+
+#### Lab 07: Coding Standards Compliance
+
+Located in `lab/07-coding-standards/`, this lab covers MISRA and CERT compliance checking:
+
+- **Compliance Scripts**:
+  - `run-misra-checks.sh` - Run MISRA C++:2008 compliance checks
+  - `run-cert-checks.sh` - Run CERT C/C++ secure coding checks
+  - `generate-report.sh` - Generate comprehensive compliance reports
+  - `filter-by-obligation.sh` - Filter MISRA results by obligation level
+  - `create-compliance-suite.sh` - Create custom compliance query suites
+  - `quick-start.sh` - Interactive menu for quick lab access
+
+- **Custom Query Suites**:
+  - `compliance-suites/misra-required.qls` - Critical MISRA rules only
+  - `compliance-suites/misra-advisory.qls` - Recommended MISRA rules
+  - `compliance-suites/cert-security.qls` - Security-focused CERT rules
+
+- **Learning Focus**:
+  - Understanding MISRA C++:2008 and CERT C/C++ standards
+  - Running automated compliance checks
+  - Filtering results by obligation level and category
+  - Generating compliance reports for audits
+  - Integrating standards checking in CI/CD pipelines
+
+See `lab/07-coding-standards/README.md` for detailed instructions.
 
 ## 🚀 Quick Start
 

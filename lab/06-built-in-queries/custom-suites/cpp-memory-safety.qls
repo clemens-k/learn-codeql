@@ -1,0 +1,20 @@
+# C++ Memory Safety Focus
+# Covers: Buffer overflows, use-after-free, memory leaks, null dereferences
+
+- description: "C++ memory safety issues"
+- queries: .
+- from: codeql/cpp-queries
+- include:
+    tags:
+      - security
+    query path:
+      - "**/Security/CWE/CWE-119/**"  # Buffer overflow
+      - "**/Security/CWE/CWE-120/**"  # Buffer copy without checking size
+      - "**/Security/CWE/CWE-401/**"  # Memory leak
+      - "**/Security/CWE/CWE-415/**"  # Double free
+      - "**/Security/CWE/CWE-416/**"  # Use after free
+      - "**/Security/CWE/CWE-476/**"  # Null pointer dereference
+      - "**/Security/CWE/CWE-787/**"  # Out-of-bounds write
+    precision:
+      - very-high
+      - high

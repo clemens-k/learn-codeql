@@ -1,0 +1,14 @@
+---
+# MISRA C++:2008 Advisory Rules Only
+# Checks only rules with "advisory" obligation level
+
+- description: MISRA C++ Advisory Rules (Recommended)
+- qlpack: codeql/cpp-queries
+- queries: .
+  from: codeql/cpp-queries
+- include:
+    tags contain:
+      - external/misra/obligation/advisory
+- exclude:
+    tags contain:
+      - external/misra/obligation/required

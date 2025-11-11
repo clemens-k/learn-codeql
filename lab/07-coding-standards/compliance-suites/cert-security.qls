@@ -1,0 +1,19 @@
+---
+# CERT C/C++ Security-Focused Rules
+# Emphasizes memory safety and critical vulnerabilities
+
+- description: CERT C++ Security Essentials
+- qlpack: codeql/cpp-queries
+- queries: .
+  from: codeql/cpp-queries
+- include:
+    tags contain:
+      - external/cert
+    tags contain any:
+      - security
+      - correctness
+- include:
+    tags contain any:
+      - external/cert/arr
+      - external/cert/mem
+      - external/cert/str
