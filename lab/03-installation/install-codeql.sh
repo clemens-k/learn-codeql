@@ -49,30 +49,15 @@ print_success "Directory created: $CODEQL_HOME"
 echo ""
 
 # Detect OS and architecture
-echo "🔍 Detecting system architecture..."
+echo "🔍 Detecting operating system..."
 OS=$(uname -s)
-ARCH=$(uname -m)
 
 case "$OS" in
     Linux*)
-        if [ "$ARCH" = "x86_64" ]; then
-            BUNDLE="codeql-linux64.tar.gz"
-        elif [ "$ARCH" = "aarch64" ]; then
-            BUNDLE="codeql-linux-arm64.tar.gz"
-        else
-            print_error "Unsupported architecture: $ARCH"
-            exit 1
-        fi
+        BUNDLE="codeql-linux64.zip"
         ;;
     Darwin*)
-        if [ "$ARCH" = "x86_64" ]; then
-            BUNDLE="codeql-osx64.tar.gz"
-        elif [ "$ARCH" = "arm64" ]; then
-            BUNDLE="codeql-osx-arm64.tar.gz"
-        else
-            print_error "Unsupported architecture: $ARCH"
-            exit 1
-        fi
+        BUNDLE="codeql-osx64.zip"
         ;;
     *)
         print_error "Unsupported OS: $OS"
@@ -87,7 +72,7 @@ echo ""
 # Get latest release URL
 echo "🌐 Fetching latest CodeQL release..."
 RELEASE_URL="https://api.github.com/repos/github/codeql-cli-binaries/releases/latest"
-DOWNLOAD_URL=$(curl -s "$RELEASE_URL" | grep "browser_download_url.*$BUNDLE" | cut -d '"' -f 4)
+DOWNLOAD_URL=$(curl -s "$RELEASE_URL" | grep "browser_download_url.*$BUNDLE\"" | cut -d '"' -f 4)
 
 if [ -z "$DOWNLOAD_URL" ]; then
     print_error "Failed to find download URL for $BUNDLE"
@@ -100,7 +85,7 @@ echo ""
 
 # Download CodeQL
 echo "⬇️  Downloading CodeQL CLI..."
-TMP_FILE="/tmp/codeql.tar.gz"
+TMP_FILE="/tmp/codeql.zip"
 curl -L -o "$TMP_FILE" "$DOWNLOAD_URL"
 print_success "Downloaded to $TMP_FILE"
 echo ""
@@ -108,7 +93,7 @@ echo ""
 # Extract
 echo "📦 Extracting CodeQL CLI..."
 cd "$CODEQL_HOME"
-tar -xzf "$TMP_FILE"
+unzip "$TMP_FILE"
 rm "$TMP_FILE"
 print_success "Extracted to $CODEQL_HOME/codeql"
 echo ""

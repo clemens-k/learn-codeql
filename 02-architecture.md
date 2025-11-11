@@ -18,10 +18,10 @@ what technologies power it.
 
 Source Code                CodeQL Database            Results
     │                            │                        │
-    ├──> 1. Extract ──────────> ├──> 3. Query ────────> │
-    │    (Parser/Compiler)       │    (QL Engine)        │
+    ├──> 1. Extract ──────────>  ├──> 3. Query ────────>  │
+    │    (Parser/Compiler)       │    (QL Engine)         │
     │                            │                        │
-    └──> 2. Build Database ────>│                        │
+    └──> 2. Build Database ────> │                        │
          (Schema Population)     │                        │
                                  │                        │
                             ┌────┴────┐                   │
@@ -129,7 +129,7 @@ Each language has its own schema defining:
 
 ### Example: C++ Schema Elements
 
-```
+```txt
 Table: Function
 Columns: id, name, signature, return_type
 
@@ -194,7 +194,7 @@ Columns: id, function_id, successor_id, type
 
 ### Phase 2: Database Creation
 
-```
+```txt
 TRAP Files → Import → Relations → Index → CodeQL Database
 ```
 
@@ -216,7 +216,7 @@ TRAP Files → Import → Relations → Index → CodeQL Database
 
 **Database Structure:**
 
-```
+```txt
 my-database/
 ├── db-cpp/           # Language-specific database
 │   ├── default/      # Default dataset
@@ -436,13 +436,13 @@ codeql query run query.ql
 
 ### Output Comparison
 
-| Format | Size | Human-Readable | Tool Support | Use Case |
-|--------|------|----------------|--------------|----------|
-| SARIF | Large | Moderate | ⭐⭐⭐⭐⭐ | CI/CD, IDE |
-| CSV | Small | High | ⭐⭐⭐ | Reports |
-| JSON | Medium | Moderate | ⭐⭐⭐⭐ | Scripting |
-| BQRS | Smallest | No | ⭐⭐ | Internal |
-| Terminal | N/A | High | ⭐ | Testing |
+|  Format  | Size     | Human-Readable | Tool Support | Use Case    |
+|----------|----------|----------------|--------------|-------------|
+| SARIF    | Large    | Moderate       | ⭐⭐⭐⭐⭐   | CI/CD, IDE  |
+| CSV      | Small    | High           | ⭐⭐⭐       | Reports     |
+| JSON     | Medium   | Moderate       | ⭐⭐⭐⭐     | Scripting   |
+| BQRS     | Smallest | No             | ⭐⭐         | Internal    |
+| Terminal | N/A      | High           | ⭐           | Testing     |
 
 ---
 
@@ -602,12 +602,9 @@ paths-ignore:
 
 ## 📖 Next Steps
 
-- ⚙️ **[Installation Guide](03-installation.md)** - Set up CodeQL
-  on your system
-- 🦀 **[Rust Setup](04-rust-setup.md)** - Configure for Rust
-  projects
-- 🔧 **[C++/CMake Setup](05-cpp-cmake-setup.md)** - Configure for
-  C++ projects
+- ⚙️ **[Installation Guide](03-installation.md)** - Set up CodeQL on your system
+- 🦀 **[Rust Setup](04-rust-setup.md)** - Configure for Rust projects
+- 🔧 **[C++/CMake Setup](05-cpp-cmake-setup.md)** - Configure for C++ projects
 
 ---
 
