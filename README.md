@@ -11,6 +11,10 @@ tutorials and practical labs for analyzing code with CodeQL.
 - **Installation & Configuration**: Setting up CodeQL CLI and VS Code extension
 - **Practical Analysis**: Creating databases and running queries on real projects
 
+**WARNING:** CodeQL is free for research and open source (OSI-compliant license).
+You SHALL NOT use codeql on closed sources of non-OSI-compliant licenses without
+proper license from GitHub!
+
 ## 📖 Course Content
 
 ### Tutorials
