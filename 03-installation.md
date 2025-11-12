@@ -159,7 +159,7 @@ The standard query libraries contain built-in queries and utilities.
 # Choose a location
 cd ~/codeql-home
 
-# Clone the main repository
+# Clone the repository
 git clone https://github.com/github/codeql.git codeql-repo
 
 # This gives you:
