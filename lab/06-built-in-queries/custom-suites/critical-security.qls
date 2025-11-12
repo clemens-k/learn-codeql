@@ -1,0 +1,18 @@
+# Critical Security Issues (>= 9.0)
+# For emergency security reviews
+
+- description: "Critical security vulnerabilities only"
+- queries: .
+- from:
+    - codeql/cpp-queries
+    - codeql/rust-queries
+- include:
+    tags:
+      - security
+    precision:
+      - very-high
+    query path:
+      - "**/Security/**"
+- exclude:
+    tags:
+      - experimental

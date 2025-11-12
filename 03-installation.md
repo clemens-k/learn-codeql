@@ -168,18 +168,78 @@ git clone https://github.com/github/codeql.git codeql-repo
 # - Examples and documentation
 ```
 
+### Clone the Coding Standards Repository
+
+For MISRA and CERT compliance checking, clone the official coding 
+standards repository:
+
+```bash
+# Clone coding standards (MISRA & CERT queries)
+cd ~/codeql-home
+git clone https://github.com/github/codeql-coding-standards.git \
+  coding-standards
+
+# This gives you:
+# - MISRA C:2012 queries
+# - MISRA C++:2023 queries  
+# - CERT C queries
+# - CERT C++ queries
+# - Compliance query suites
+```
+
+**Why separate repository?**
+
+The coding standards queries are maintained separately because:
+- They follow external standards (MISRA, CERT)
+- Have their own release cycle
+- Require specific documentation and licensing
+
+### Install Pack Dependencies
+
+After cloning the coding standards repository, you need to install
+the query pack dependencies:
+
+```bash
+# Install MISRA C++ dependencies
+cd ~/codeql-home/coding-standards/cpp/misra/src
+codeql pack install
+
+# Install CERT C++ dependencies
+cd ~/codeql-home/coding-standards/cpp/cert/src
+codeql pack install
+```
+
+**What does `codeql pack install` do?**
+
+- Downloads required CodeQL library packs (e.g., `codeql/cpp-all`)
+- Installs dependencies specified in `qlpack.yml`
+- Caches packages in `~/.codeql/packages`
+- Required before running MISRA/CERT queries
+
+**Common packages installed:**
+- `codeql/cpp-all` - C++ standard library
+- `codeql/dataflow` - Data flow analysis
+- `codeql/util` - Utility functions
+- `codeql/tutorial` - Tutorial helpers
+
 ### Directory Structure
 
 ```txt
 ~/codeql-home/
-├── codeql/              # CLI binaries
-│   ├── codeql           # Main executable
+├── codeql/                  # CLI binaries
+│   ├── codeql               # Main executable
 │   └── ...
-└── codeql-repo/         # Libraries and queries
-    ├── cpp/             # C++ queries and libraries
-    ├── rust/            # Rust queries and libraries
-    ├── python/          # Python queries and libraries
-    └── ...
+├── codeql-repo/             # Standard libraries and queries
+│   ├── cpp/                 # C++ queries and libraries
+│   ├── rust/                # Rust queries and libraries
+│   ├── python/              # Python queries and libraries
+│   └── ...
+└── coding-standards/        # MISRA & CERT compliance queries
+    ├── cpp/                 # C/C++ coding standards
+    │   ├── misra/           # MISRA C and C++ queries
+    │   └── cert/            # CERT C and C++ queries
+    ├── docs/                # Standards documentation
+    └── qlpacks/             # Query pack definitions
 ```
 
 ---

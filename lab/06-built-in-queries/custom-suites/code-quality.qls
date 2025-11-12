@@ -1,0 +1,21 @@
+# Code Quality Focus
+# For maintainability, correctness, and best practices
+
+- description: "Code quality and maintainability"
+- queries: .
+- from:
+    - codeql/cpp-queries
+    - codeql/rust-queries
+- include:
+    tags:
+      - correctness
+      - maintainability
+    precision:
+      - very-high
+      - high
+- exclude:
+    tags:
+      - security
+      - experimental
+    query path:
+      - "**/test/**"

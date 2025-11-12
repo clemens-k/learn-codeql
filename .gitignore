@@ -8,3 +8,6 @@ Cargo.lock
 # codeql related
 databases/
 results/
+
+# lab related files
+baselines/

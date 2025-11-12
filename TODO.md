@@ -46,7 +46,7 @@ Create a comprehensive learning resource for CodeQL focusing on:
 
 ### 🦀 WP5: Rust Setup (Beginner)
 
-- [ ] `04-rust-setup.md`
+- [X] `04-rust-setup.md`
   - Rust-specific requirements
   - Creating CodeQL databases for Rust
   - Configuration for Rust projects
@@ -55,7 +55,7 @@ Create a comprehensive learning resource for CodeQL focusing on:
 
 ### 🔧 WP6: C++/CMake Setup (Beginner)
 
-- [ ] `05-cpp-cmake-setup.md`
+- [x] `05-cpp-cmake-setup.md`
   - C++ specific requirements
   - CMake integration
   - Creating CodeQL databases for C++
@@ -65,7 +65,7 @@ Create a comprehensive learning resource for CodeQL focusing on:
 
 ### 🔍 WP7: Using Built-in Query Suites (Beginner)
 
-- [ ] `06-built-in-queries.md`
+- [x] `06-built-in-queries.md`
   - Overview of standard query packs
   - Security queries
   - Code quality queries
@@ -74,23 +74,37 @@ Create a comprehensive learning resource for CodeQL focusing on:
 
 ### 📏 WP8: MISRA & CERT Guidelines (Beginner → Intermediate)
 
-- [ ] `07-coding-standards.md`
+- [x] `07-coding-standards.md`
   - MISRA C/C++ guidelines support
   - CERT coding standards
   - Available query packs
   - Running compliance checks
   - Configuration for standards
   - Reporting and compliance
+- [x] Lab 07: Coding Standards Compliance
+  - MISRA C++:2008 compliance checking
+  - CERT C/C++ secure coding checks
+  - Compliance reporting and filtering
+  - Custom compliance query suites
+  - CI/CD integration examples
 
 ### 📄 WP9: SARIF Output Format (Beginner → Intermediate)
 
-- [ ] `08-sarif-output.md`
+- [x] `08-sarif-output.md`
   - What is SARIF?
   - SARIF structure and format
   - Viewing and processing SARIF files
   - Other output formats supported by CodeQL
   - Integrating with CI/CD
   - Tooling ecosystem
+- [x] Lab 08: SARIF Output Processing
+  - SARIF file structure exploration
+  - Filtering and analyzing results with jq
+  - Generating reports (summary, HTML, CSV)
+  - Baseline management and comparison
+  - Merging multiple SARIF files
+  - Metrics extraction and dashboards
+  - CI/CD integration patterns
 
 ### 🔧 WP10: Advanced Configuration (Intermediate → Advanced)
 
