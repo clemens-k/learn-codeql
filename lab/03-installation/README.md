@@ -281,8 +281,12 @@ Expected output: All checks pass with ✓
 ## ⚡ Exercise 7: Pre-Compile Queries (Optional but Recommended)
 
 **Why pre-compile?** The first time you run a CodeQL query, it needs to be 
-compiled, which can take 30 seconds to 10+ minutes depending on complexity.
+compiled, which takes about 20s for each rule and runs single-threaded (codeql 2.23.3).
 Pre-compiling queries warms up the cache so subsequent analyses are instant!
+
+**Warning**: To precompile all rules, including MISRA and CERT coding standard
+may take 2-3 **hours** as there are currently about 600 rules overall. 
+This is preposterous and needs serious consideration in any deployment scenario!
 
 **Performance benefit:**
 - First run with cold cache: 2-10 minutes compilation + analysis time

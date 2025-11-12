@@ -34,14 +34,24 @@ echo -e "${BLUE}📊 Generating Coding Standards Compliance Report...${NC}\n"
         echo "--------------------------"
         
         TOTAL=$(jq '.runs[0].results | length' "$RESULTS_DIR/misra-results.sarif")
-        REQUIRED=$(jq '[.runs[0].results[] | 
-            select(.rule.properties.tags | 
-            contains(["external/misra/obligation/required"]))] | length' \
-            "$RESULTS_DIR/misra-results.sarif")
-        ADVISORY=$(jq '[.runs[0].results[] | 
-            select(.rule.properties.tags | 
-            contains(["external/misra/obligation/advisory"]))] | length' \
-            "$RESULTS_DIR/misra-results.sarif")
+        REQUIRED=$(jq '
+            .runs[0] as $run |
+            $run.results as $results |
+            $run.tool.driver.rules as $rules |
+            [ $results[] as $r |
+                ($rules[] | select(.id? == $r.ruleId and .properties?.tags? and (.properties.tags | index("external/misra/obligation/required")))) as $rule |
+                1
+            ] | length
+        ' "$RESULTS_DIR/misra-results.sarif")
+        ADVISORY=$(jq '
+            .runs[0] as $run |
+            $run.results as $results |
+            $run.tool.driver.rules as $rules |
+            [ $results[] as $r |
+                ($rules[] | select(.id? == $r.ruleId and .properties?.tags? and (.properties.tags | index("external/misra/obligation/advisory")))) as $rule |
+                1
+            ] | length
+        ' "$RESULTS_DIR/misra-results.sarif")
         
         echo "Total Violations: $TOTAL"
         echo "  Required:       $REQUIRED (Priority: CRITICAL)"
@@ -49,12 +59,13 @@ echo -e "${BLUE}📊 Generating Coding Standards Compliance Report...${NC}\n"
         echo ""
         
         echo "Top Violations:"
-        jq -r '.runs[0].results | 
+        jq -r '
+            .runs[0].results | 
             group_by(.ruleId) | 
             map({rule: .[0].ruleId, count: length}) | 
             sort_by(-.count) | 
-            limit(5; .[]) | 
-            "  \(.count)x \(.rule)"' \
+            .[:5] | 
+            .[] | "  \(.count)x \(.rule)"' \
             "$RESULTS_DIR/misra-results.sarif"
         echo ""
     fi
@@ -98,18 +109,22 @@ echo -e "\n${CYAN}Report saved to: $REPORT_FILE${NC}"
 # Generate CSV exports
 if [ -f "$RESULTS_DIR/misra-results.sarif" ]; then
     echo "Exporting MISRA violations to CSV..."
-    jq -r '.runs[0].results[] | 
+    jq -r '
+        .runs[0] as $run |
+        $run.results as $results |
+        $run.tool.driver.rules as $rules |
+        $results[] as $r |
+        (
+            $rules[] | select(.id? == $r.ruleId and .properties?.tags?) | .properties.tags[] | select(startswith("external/misra/obligation"))
+        ) as $obligation_tag |
         [
-            .ruleId,
-            (.rule.properties.tags | 
-            map(select(startswith("external/misra/obligation"))) | 
-            .[0] // "N/A"),
-            .message.text,
-            .locations[0].physicalLocation.artifactLocation.uri,
-            .locations[0].physicalLocation.region.startLine
-        ] | @csv' \
-        "$RESULTS_DIR/misra-results.sarif" \
-        > "$RESULTS_DIR/misra-violations.csv"
+            $r.ruleId,
+            ($obligation_tag // "N/A"),
+            $r.message.text,
+            ($r.locations[0].physicalLocation.artifactLocation.uri // "N/A"),
+            ($r.locations[0].physicalLocation.region.startLine // "N/A")
+        ] | @csv
+    ' "$RESULTS_DIR/misra-results.sarif" > "$RESULTS_DIR/misra-violations.csv"
     echo "  Saved to: $RESULTS_DIR/misra-violations.csv"
 fi
 

@@ -29,10 +29,17 @@ OUTPUT="$OUTPUT_DIR/${BASENAME}-${OBLIGATION}.sarif"
 
 echo "Filtering by obligation: $OBLIGATION"
 
-jq --arg obligation "external/misra/obligation/$OBLIGATION" \
-    '.runs[0].results |= 
-    map(select(.rule.properties.tags | contains([$obligation])))' \
-    "$SARIF_FILE" > "$OUTPUT"
+
+jq --arg obligation "external/misra/obligation/$OBLIGATION" '
+    .runs[0] as $run |
+    $run.results as $results |
+    $run.tool.driver.rules as $rules |
+    .runs[0].results = [
+        $results[] as $r |
+        ($rules[] | select(.id? == $r.ruleId and .properties?.tags? and (.properties.tags | index($obligation)))) as $rule |
+        $r
+    ]
+' "$SARIF_FILE" > "$OUTPUT"
 
 COUNT=$(jq '.runs[0].results | length' "$OUTPUT")
 

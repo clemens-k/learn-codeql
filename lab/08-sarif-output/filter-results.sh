@@ -63,43 +63,39 @@ if [ -z "$SARIF_FILE" ]; then
     exit 1
 fi
 
-# Build jq filter
-JQ_FILTER=".runs[0].results |= map(select("
 
-CONDITIONS=()
+# Robust: Join results with rules for tag/precision filtering, default missing fields
+JQ_JOIN='def join_results_with_rules:
+  . as $sarif |
+  ($sarif.runs[0].tool.driver.rules // []) as $rules |
+  ($sarif.runs[0].results // []) | map(
+    . as $result |
+    ($rules[] | select(.id == $result.ruleId)) as $rule |
+    $result + { _rule: $rule }
+  );
+join_results_with_rules'
 
+# Build jq filter expression as a string
+COND='true'
 if [ -n "$RULE" ]; then
-    CONDITIONS+=(".ruleId == \"$RULE\"")
+    COND="$COND and (.ruleId == \"$RULE\")"
 fi
-
 if [ -n "$TAG" ]; then
-    CONDITIONS+=("(.properties.tags // [] | contains([\"$TAG\"]))")
+    COND="$COND and ((._rule.properties.tags // []) | contains([\"$TAG\"]))"
 fi
-
 if [ -n "$LEVEL" ]; then
-    CONDITIONS+=(".level == \"$LEVEL\"")
+    COND="$COND and ((.level // \"unknown\") == \"$LEVEL\")"
 fi
-
 if [ -n "$PRECISION" ]; then
-    CONDITIONS+=("(.properties.precision // \"\") == \"$PRECISION\"")
+    COND="$COND and ((._rule.properties.precision // \"unknown\") == \"$PRECISION\")"
 fi
-
 if [ -n "$FILE_PATTERN" ]; then
-    CONDITIONS+=("(.locations[0].physicalLocation.artifactLocation.uri | test(\"$FILE_PATTERN\"))")
+    COND="$COND and ((.locations[0].physicalLocation.artifactLocation.uri // \"\") | test(\"$FILE_PATTERN\"))"
 fi
 
-# Join conditions with "and"
-FILTER_EXPR=""
-for i in "${!CONDITIONS[@]}"; do
-    if [ $i -gt 0 ]; then
-        FILTER_EXPR="$FILTER_EXPR and "
-    fi
-    FILTER_EXPR="$FILTER_EXPR${CONDITIONS[$i]}"
-done
+# Compose the full jq filter
+JQ_FILTER="$JQ_JOIN | map(select($COND)) | { runs: [ { results: ., tool: { driver: {} } } ] }"
 
-JQ_FILTER="$JQ_FILTER$FILTER_EXPR))"
-
-# Apply filter
 if [ -n "$OUTPUT" ]; then
     jq "$JQ_FILTER" "$SARIF_FILE" > "$OUTPUT"
     echo "Filtered results saved to: $OUTPUT"

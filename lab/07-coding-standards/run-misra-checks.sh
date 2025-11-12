@@ -64,15 +64,21 @@ else
 fi
 
 # Generate summary
+
+# Helper jq filter to join results with their rule tags
 TOTAL=$(jq '.runs[0].results | length' "$RESULTS_DIR/misra-results.sarif")
-REQUIRED=$(jq '[.runs[0].results[] | 
-    select(.rule.properties.tags | 
-    contains(["external/misra/obligation/required"]))] | length' \
-    "$RESULTS_DIR/misra-results.sarif")
-ADVISORY=$(jq '[.runs[0].results[] | 
-    select(.rule.properties.tags | 
-    contains(["external/misra/obligation/advisory"]))] | length' \
-    "$RESULTS_DIR/misra-results.sarif")
+REQUIRED=$(jq '
+    .runs[0] as $run |
+    $run.results as $results |
+    $run.tool.driver.rules as $rules |
+    [ $results[] as $r | $rules[] | select(.id == $r.ruleId) | select(.properties.tags | index("external/misra/obligation/required")) ] | length
+' "$RESULTS_DIR/misra-results.sarif")
+ADVISORY=$(jq '
+    .runs[0] as $run |
+    $run.results as $results |
+    $run.tool.driver.rules as $rules |
+    [ $results[] as $r | $rules[] | select(.id == $r.ruleId) | select(.properties.tags | index("external/misra/obligation/advisory")) ] | length
+' "$RESULTS_DIR/misra-results.sarif")
 
 echo -e "${BLUE}📊 MISRA Compliance Summary:${NC}"
 echo "  Total violations: $TOTAL"
@@ -80,15 +86,27 @@ echo "  Required rules:   $REQUIRED violations"
 echo "  Advisory rules:   $ADVISORY violations"
 echo ""
 
+
+# Print top required rule violations (join with rules for tags)
 if [ "$REQUIRED" -gt 0 ]; then
     echo -e "${RED}⚠️  High-priority violations found!${NC}"
     echo ""
     echo "Top required rule violations:"
-    jq -r '.runs[0].results[] | 
-        select(.rule.properties.tags | 
-        contains(["external/misra/obligation/required"])) | 
-        "\(.ruleId): \(.message.text[:60])..."' \
-        "$RESULTS_DIR/misra-results.sarif" | head -5
+        TOP_REQUIRED=$(jq -r '
+            .runs[0] as $run |
+            $run.results as $results |
+            $run.tool.driver.rules as $rules |
+            [ $results[] as $r |
+                ($rules[] | select(.id? == $r.ruleId and .properties?.tags? and (.properties.tags | index("external/misra/obligation/required")))) as $rule |
+                {ruleId: $r.ruleId, message: $r.message.text}
+            ] | .[]
+            | "\(.ruleId): \(.message | gsub("\n";" ") | .[0:60])..."
+        ' "$RESULTS_DIR/misra-results.sarif")
+        if [ -z "$TOP_REQUIRED" ]; then
+            echo "No required rule violations found or rules metadata missing."
+        else
+            echo "$TOP_REQUIRED" | head -5
+        fi
 else
     echo -e "${GREEN}✓ No required rule violations${NC}"
 fi

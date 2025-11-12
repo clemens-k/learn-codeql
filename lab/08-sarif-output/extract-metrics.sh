@@ -33,19 +33,21 @@ fi
 mkdir -p metrics
 
 # Extract comprehensive metrics
+
+# Robust: Default missing/null .level to "unknown" (like precision)
 METRICS=$(jq '{
     timestamp: now | strftime("%Y-%m-%d %H:%M:%S"),
     source_file: "'"$SARIF_FILE"'",
     total_findings: (.runs[0].results | length),
     by_severity: (
         .runs[0].results |
-        group_by(.level) |
-        map({key: .[0].level, value: length}) |
+        group_by((.level // "unknown")) |
+        map({key: (.[0].level // "unknown"), value: length}) |
         from_entries
     ),
     by_precision: (
         .runs[0].results |
-        group_by(.properties.precision // "unknown") |
+        group_by((.properties.precision // "unknown")) |
         map({key: (.[0].properties.precision // "unknown"), value: length}) |
         from_entries
     ),
