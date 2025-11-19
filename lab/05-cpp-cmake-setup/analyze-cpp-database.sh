@@ -6,7 +6,7 @@ set -e
 CODEQL_HOME="$HOME/.codeql-home"
 DB_DIR="$(pwd)/databases/test-cpp-db"
 RESULTS_DIR="$(pwd)/results"
-QUERY_SUITE="$CODEQL_HOME/codeql-repo/cpp/ql/src/codeql-suites/cpp-security-extended.qls"
+QUERY_SUITE="codeql/misra-cpp-coding-standards"
 
 echo "🔍 Analyzing C++ Database with CodeQL"
 echo "======================================"
@@ -24,14 +24,14 @@ mkdir -p "$RESULTS_DIR"
 
 # Run analysis
 echo "🚀 Running security analysis..."
-echo "Query suite: cpp-security-extended"
+echo "Query suite: $QUERY_SUITE"
 echo ""
 
 codeql database analyze "$DB_DIR" \
     "$QUERY_SUITE" \
     --format=sarif-latest \
     --output="$RESULTS_DIR/cpp-results.sarif" \
-    --threads=$(nproc) \
+    --threads=0 \
     --ram=8192
 
 echo ""

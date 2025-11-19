@@ -74,6 +74,8 @@ instructions below.
 
 - Rust toolchain: `rustc` and `cargo`
 - Rust version: 1.65.0 or later recommended
+- codeql v2.22.1 include preview for rust support
+
 
 ---
 
@@ -280,7 +282,7 @@ Search for "CodeQL" and configure:
   "codeQL.cli.executablePath": 
     "/home/your-username/codeql-home/codeql/codeql",
   
-  "codeQL.runningQueries.numberOfThreads": 4,
+  "codeQL.runningQueries.numberOfThreads": 0,
   
   "codeQL.runningQueries.memory": 8192
 }

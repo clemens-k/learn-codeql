@@ -45,6 +45,7 @@ echo ""
 codeql database create "$DB_DIR" \
     --language=cpp \
     --source-root="$PROJECT_DIR" \
+    --threads=0 \
     --command="ninja -C $PROJECT_DIR/build"
 
 echo ""
