@@ -7,6 +7,21 @@ allowing you to search for patterns using a declarative query
 language. This document explores how CodeQL works internally and
 what technologies power it.
 
+## Deliverables
+
+Github publishes in multiple ways:
+
+- codeql cli binaries on https://github.com/github/codeql-cli-binaries/releases/
+   - this does not include any rules!
+   - asset: ~500 MB zip
+- codeql bundle on https://github.com/github/codeql-action/releases
+   - include cli binary + all supported language queries
+   -  asset: ~700 MB .tar.gz
+- codeql coding standards on https://github.com/github/codeql-coding-standards/releases
+   - includes MISRA C / C++ and CERT C / C++
+   - asset: ~160 MB .zip
+   - notice: qlpack.yml point to a particular cli binary version
+
 ---
 
 ## 📊 High-Level Architecture
@@ -234,7 +249,7 @@ my-database/
    - Parse QL query syntax
    - Type checking and validation
 
-2. **Query Optimization (Compiling Query Plan)** ⚠️ **Performance Note**
+2. **Query Optimization (Compiling Query Plan - if not done already)**
    - Rewrite rules for efficiency
    - Join order optimization
    - Predicate inlining
@@ -251,71 +266,7 @@ my-database/
 
 #### Understanding "Compiling Query Plan" 🐌
 
-When you run a CodeQL query, you'll often see a phase called **"Compiling query plan"** that can take a significant amount of time. This section explains what's happening and why it can be slow.
-
-**What is Query Plan Compilation?**
-
-The query plan compilation phase is where CodeQL transforms your high-level QL query into an optimized execution plan. This is similar to how a database query optimizer works, but more complex due to QL's recursive logic programming nature.
-
-**Steps in Query Plan Compilation:**
-
-1. **Type Checking & Resolution**
-   - Resolve all imported libraries and their dependencies
-   - Type-check all predicates and expressions
-   - Validate class hierarchies and member predicates
-
-2. **Predicate Expansion**
-   - Inline small predicates for efficiency
-   - Expand recursive predicates
-   - Resolve virtual dispatch (which implementation to use)
-
-3. **Query Optimization**
-   - Determine optimal join order (crucial for performance)
-   - Apply rewrite rules (e.g., pushing down filters)
-   - Eliminate redundant computations
-   - Identify opportunities for predicate materialization
-
-4. **Code Generation**
-   - Generate executable query plan
-   - Create intermediate data structures
-   - Prepare for actual execution
-
-**Why Does It Take So Long?**
-
-The query plan compilation can be time-consuming for several reasons:
-
-1. **Library Complexity**
-   - Standard libraries (e.g., `cpp`, `rust`) contain thousands of predicates
-   - Each imported module must be processed
-   - Deep inheritance hierarchies require complex resolution
-   - Transitive closure computations in data flow libraries
-
-2. **Optimization Complexity**
-   - Join order optimization is NP-hard in general
-   - Must consider many possible query plans
-   - Data flow and taint tracking queries are particularly complex
-   - Recursive predicates require fixed-point computation planning
-
-3. **Dependency Analysis**
-   - Must analyze all dependencies between predicates
-   - Determine what can be computed incrementally
-   - Identify what needs to be materialized vs. computed on-demand
-
-**⚠️ Single-Threaded Limitation**
-
-The query plan compilation phase is **largely single-threaded**, which is why you see only 1 CPU core being used even with `--threads=12`:
-
-- **Why Single-Threaded?**
-  - Type checking and dependency analysis are inherently sequential
-  - Global optimization decisions require complete context
-  - The compiler maintains complex internal state that's hard to parallelize
-  - Sequential dependency chains must be resolved in order
-
-- **What About `--threads`?**
-  - The `--threads` flag applies to **query evaluation**, not compilation
-  - During evaluation, independent predicates can run in parallel
-  - Multiple database lookups can be parallelized
-  - But the compilation phase remains mostly sequential
+When you run a CodeQL query `.ql`, you'll often see a phase called **"Compiling query plan"** that can take a significant amount of time (potentially hours). This section explains what's happening and how to avoid it.
 
 **Compilation vs. Evaluation Time:**
 
@@ -359,13 +310,32 @@ Structure:
 
 **Cache Benefits:**
 
-✅ First compilation of a query: slow (30s-10min)
+✅ First compilation of a query: slow (5-10s per rule)
 ✅ Subsequent runs with same query: instant (cache hit)
 ✅ Shared across projects using the same query libraries
 
 **Performance Tips:**
 
-1. **Pre-Compile Queries in Advance**
+1. **Use `.qlx` files for speedup**
+
+Either use a coding-standard release (which always includes all `.qlx` files) or
+create them manually (this is a multi-core operation) with:
+
+```sh
+codeql query compile --precompile --threads=0 codeql/misra-cpp-coding-standards
+```
+
+When running any analysis you have to provide the `--expect-discarded-cache`
+parameter:
+
+```sh
+codeql database analyze db path/to/query.qlx \
+  --expect-discarded-cache \
+  --threads=0 \
+  --output=results.sarif
+```
+
+2. **Legacy: Pre-Compile Queries in Advance**
    
    You can pre-warm the compilation cache before analysis:
    
@@ -385,55 +355,15 @@ Structure:
    - Sharing cache between team members
    - Speeding up first-time analysis
 
-2. **Sharing the Compilation Cache**
-
-   The cache can be shared between machines:
-   
-   ```bash
-   # Archive the cache
-   tar -czf codeql-compile-cache.tar.gz -C ~ .codeql/compile-cache
-   
-   # On another machine, extract it
-   tar -xzf codeql-compile-cache.tar.gz -C ~
-   ```
-   
-   **Important Considerations:**
-   - ✅ Cache is portable across machines with same architecture
-   - ✅ Safe to share within teams (no sensitive information)
-   - ✅ Works across different databases
-   - ⚠️ Must use same CodeQL CLI version
-   - ⚠️ Must use same query library versions
-   - ⚠️ Hash mismatches from different versions = cache misses
-   
-   **Best Practice for CI/CD:**
-   ```yaml
-   # GitHub Actions example
-   - name: Cache CodeQL compilation
-     uses: actions/cache@v3
-     with:
-       path: ~/.codeql/compile-cache
-       key: codeql-compile-${{ hashFiles('**/qlpack.yml') }}
-   ```
-
 3. **Minimize Imports**
    - Only import what you need
    - Avoid `import cpp` if you only need specific modules
    - Use targeted imports like `import cpp.dataflow.DataFlow`
 
-4. **Use Query Packs**
-   - Pre-compiled query suites skip compilation
-   - Standard queries from CodeQL libraries are pre-optimized
-   - Consider packaging frequently-used custom queries
-
-5. **Simplify Complex Queries**
+4. **Simplify Complex Queries**
    - Break very complex queries into simpler components
    - Test predicates independently before combining
    - Avoid deeply nested recursion when possible
-
-6. **Hardware Considerations**
-   - Single-core CPU speed matters more than core count for this phase
-   - Fast SSD helps (query plan generation involves I/O)
-   - Adequate RAM prevents swapping during compilation
 
 **Managing the Cache:**
 
@@ -447,32 +377,6 @@ rm -rf ~/.codeql/compile-cache
 # Cache is automatically cleaned/managed by CodeQL
 # Old entries are removed when cache grows too large
 ```
-
-**Typical Timing Breakdown:**
-
-For a medium-sized data flow query:
-
-```txt
-Loading query:          ~1-2 seconds
-Compiling query plan:   ~30-120 seconds  (single-threaded)
-Evaluating query:       ~10-60 seconds   (uses --threads)
-```
-
-For complex taint tracking queries, compilation can take **5-10 minutes** or more, especially when importing full standard libraries with data flow support.
-
-**When to Worry:**
-
-- ✅ Normal: 30-120 seconds for data flow queries
-- ⚠️ Investigation needed: >5 minutes for simple queries
-- 🔴 Problem: >15 minutes or never completes
-
-If compilation takes excessively long, consider:
-- Checking if you have infinite recursion in custom predicates
-- Simplifying overly complex class hierarchies
-- Breaking down monolithic queries
-- Updating to the latest CodeQL version (improvements are ongoing)
-
----
 
 ## 📦 Dependencies & Requirements
 
@@ -549,6 +453,7 @@ If compilation takes excessively long, consider:
 ### Query Files
 
 - `.ql` files containing queries
+- `.qlx` files contain preprocessed queries
 - `.qls` files (query suites)
 - `.qll` files (query libraries)
 

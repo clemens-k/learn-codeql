@@ -78,37 +78,46 @@ CodeQL provides dedicated compliance query packs through the official
 
 **Installation** (covered in Tutorial 03):
 ```bash
-cd ~/.codeql-home
-git clone https://github.com/github/codeql-coding-standards.git \
-  coding-standards
+# Automatically downloads pre-built query packs
+cd lab/03-installation
+./install-libraries.sh
 ```
 
-This repository provides:
-- MISRA C:2012 queries
-- MISRA C++:2023 queries
-- CERT C queries
-- CERT C++ queries
+**What gets installed**:
+- Pre-built MISRA C:2012 query pack
+- Pre-built MISRA C++:2023 query pack
+- Pre-built CERT C query pack
+- Pre-built CERT C++ query pack
 - Pre-configured compliance suites
-- Standards documentation
+- Precompiled .qlx files for faster analysis
+
+**Version Selection**:
+```bash
+# Use specific version
+export CODEQL_CODING_STANDARDS_VERSION=v2.50.0
+./install-libraries.sh
+```
 
 ### MISRA Query Packs
 
 **Available Packs**:
 ```bash
 # MISRA C:2012
-coding-standards/c/misra/src/
+~/.codeql-home/coding-standards/codeql-coding-standards-c-misra/
 
 # MISRA C++:2023  
-coding-standards/cpp/misra/src/
+~/.codeql-home/coding-standards/codeql-coding-standards-cpp-misra/
 ```
 
 **Coverage**:
+
 - MISRA C:2012 - ~200+ rules (150+ automated)
 - MISRA C++:2023 - ~250+ rules (170+ automated)
 - Automated checks for decidable rules
 - Manual review guidance for non-automatable rules
 
 **Rule Categories**:
+
 - **Required**: Must be followed (violations block release)
 - **Advisory**: Should be followed (violations need justification)
 - **Decidable**: Can be fully automated
@@ -120,12 +129,13 @@ manual code review. CodeQL automates all decidable rules.
 ### CERT Query Packs
 
 **Available Packs**:
+
 ```bash
 # CERT C  
-coding-standards/c/cert/src/
+~/.codeql-home/coding-standards/codeql-coding-standards-c-cert/
 
 # CERT C++
-coding-standards/cpp/cert/src/
+~/.codeql-home/coding-standards/codeql-coding-standards-cpp-cert/
 ```
 
 **Coverage**:
@@ -144,13 +154,13 @@ coding-standards/cpp/cert/src/
 
 ```bash
 # Find MISRA C++:2023 queries
-find ~/.codeql-home/coding-standards/cpp/misra/src -name "*.ql"
+find ~/.codeql-home/coding-standards/codeql-coding-standards-cpp-misra -name "*.ql"
 
 # Find MISRA C:2012 queries
-find ~/.codeql-home/coding-standards/c/misra/src -name "*.ql"
+find ~/.codeql-home/coding-standards/codeql-coding-standards-c-misra -name "*.ql"
 
 # View available query suites
-ls ~/.codeql-home/coding-standards/cpp/misra/src/codeql-suites/
+ls ~/.codeql-home/coding-standards/codeql-coding-standards-cpp-misra/codeql-suites/
 ```
 
 #### Run MISRA C++:2023 Checks
@@ -159,8 +169,9 @@ ls ~/.codeql-home/coding-standards/cpp/misra/src/codeql-suites/
 
 ```bash
 codeql database analyze cpp-db \
-    ~/.codeql-home/coding-standards/cpp/misra/src/codeql-suites/misra-cpp-2023.qls \
+    ~/.codeql-home/coding-standards/codeql-coding-standards-cpp-misra/codeql-suites/misra-cpp-2023.qls \
     --format=sarif-latest \
+    --threads=0 \
     --output=misra-results.sarif
 ```
 
@@ -189,6 +200,7 @@ Run the suite:
 codeql database analyze cpp-db \
     misra-compliance.qls \
     --format=sarif-latest \
+    --threads=0 \
     --output=misra-results.sarif \
     --search-path ~/.codeql-home/coding-standards
 ```
@@ -232,13 +244,13 @@ jq '.runs[0].results |=
 
 ```bash
 # Find CERT C++ queries
-find ~/.codeql-home/coding-standards/cpp/cert/src -name "*.ql"
+find ~/.codeql-home/coding-standards/codeql-coding-standards-cpp-cert -name "*.ql"
 
 # Find CERT C queries
-find ~/.codeql-home/coding-standards/c/cert/src -name "*.ql"
+find ~/.codeql-home/coding-standards/codeql-coding-standards-c-cert -name "*.ql"
 
 # View available query suites
-ls ~/.codeql-home/coding-standards/cpp/cert/src/codeql-suites/
+ls ~/.codeql-home/coding-standards/codeql-coding-standards-cpp-cert/codeql-suites/
 ```
 
 #### Run CERT Checks
@@ -247,8 +259,9 @@ ls ~/.codeql-home/coding-standards/cpp/cert/src/codeql-suites/
 
 ```bash
 codeql database analyze cpp-db \
-    ~/.codeql-home/coding-standards/cpp/cert/src/codeql-suites/cert-cpp.qls \
+    ~/.codeql-home/coding-standards/codeql-coding-standards-cpp-cert/codeql-suites/cert-cpp.qls \
     --format=sarif-latest \
+    --threads=0 \
     --output=cert-results.sarif
 ```
 
@@ -279,6 +292,7 @@ Run the suite:
 codeql database analyze cpp-db \
     cert-compliance.qls \
     --format=sarif-latest \
+    --threads=0 \
     --output=cert-results.sarif \
     --search-path ~/.codeql-home/coding-standards
 ```
@@ -540,12 +554,14 @@ Create a baseline of existing violations:
 codeql database analyze cpp-db \
     misra-compliance.qls \
     --format=sarif-latest \
+    --threads=0 \
     --output=baseline.sarif
 
 # On subsequent runs, compare
 codeql database analyze cpp-db \
     misra-compliance.qls \
     --format=sarif-latest \
+    --threads=0 \
     --output=current.sarif
 
 # Find new violations
@@ -637,6 +653,7 @@ jobs:
           codeql database analyze codeql-db \
             .codeql/misra-compliance.qls \
             --format=sarif-latest \
+            --threads=0 \
             --output=misra-results.sarif
       
       - name: Check for Required Rule Violations
@@ -675,11 +692,13 @@ codeql database create cpp-db --language=cpp
 # MISRA check
 codeql database analyze cpp-db misra-compliance.qls \
     --format=sarif-latest \
+    --threads=0 \
     --output="$REPORT_DIR/misra-results.sarif"
 
 # CERT check
 codeql database analyze cpp-db cert-compliance.qls \
     --format=sarif-latest \
+    --threads=0 \
     --output="$REPORT_DIR/cert-results.sarif"
 
 # Generate reports
