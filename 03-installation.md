@@ -74,6 +74,8 @@ instructions below.
 
 - Rust toolchain: `rustc` and `cargo`
 - Rust version: 1.65.0 or later recommended
+- codeql v2.22.1 include preview for rust support
+
 
 ---
 
@@ -280,7 +282,7 @@ Search for "CodeQL" and configure:
   "codeQL.cli.executablePath": 
     "/home/your-username/codeql-home/codeql/codeql",
   
-  "codeQL.runningQueries.numberOfThreads": 4,
+  "codeQL.runningQueries.numberOfThreads": 0,
   
   "codeQL.runningQueries.memory": 8192
 }
@@ -381,6 +383,7 @@ EOF
 # Create CodeQL database
 codeql database create /tmp/test-cpp-db \
   --language=cpp \
+  --threads=0 \
   --command="g++ test.cpp -o test" \
   --source-root=/tmp/test-cpp
 
@@ -397,6 +400,7 @@ cd /tmp/test-rust
 # Create CodeQL database
 codeql database create /tmp/test-rust-db \
   --language=rust \
+  --threads=0 \
   --source-root=.
 
 # Should complete successfully
@@ -409,6 +413,7 @@ codeql database create /tmp/test-rust-db \
 codeql database analyze /tmp/test-cpp-db \
   ~/codeql-home/codeql-repo/cpp/ql/src/codeql-suites/cpp-security-extended.qls \
   --format=sarif-latest \
+  --threads=0 \
   --output=/tmp/results.sarif
 
 # View results
@@ -581,6 +586,7 @@ source ~/.zshrc
 codeql database create db --language=cpp \
   --command="make clean && make" \
   --source-root=. \
+  --threads=0 \
   --verbose
 ```
 
@@ -595,7 +601,9 @@ codeql database create db --language=cpp \
 cargo build
 
 # Then create database
-codeql database create db --language=rust --source-root=.
+codeql database create db --language=rust \
+  --source-root=. \
+  --threads=0
 ```
 
 ### Out of Memory
@@ -611,6 +619,61 @@ codeql query run --ram=16384 query.ql
 # Or in VS Code settings:
 "codeQL.runningQueries.memory": 16384
 ```
+
+---
+
+## ⚡ Performance Optimization
+
+### Multi-core Usage
+
+**Recommended**: Always use `--threads=0` to utilize all CPU cores:
+
+```bash
+# Database creation
+codeql database create db \
+  --language=cpp \
+  --threads=0 \
+  --command="ninja"
+
+# Analysis
+codeql database analyze db \
+  query-suite.qls \
+  --threads=0 \
+  --output=results.sarif
+```
+
+**Why `--threads=0`?**
+- `0` = Use all available CPU cores automatically
+- `N` = Use exactly N threads
+- `-N` = Use all cores minus N (leave N cores free)
+- Default is `1` (single-threaded) which is very slow
+
+### Precompiled Queries
+
+If the git repo for coding standards is directly cloned, all queries must be
+first compiled and will be stored in a rules cache. This compilation is terribly
+slow (even with --threads=0) as it is limited to use just a single core.
+
+The modern approach is to not use this rules cache, but to compile `.qlx` files
+instead like so:
+
+```bash
+# 1. Precompile queries to .qlx files
+codeql query compile \
+  --precompile \
+  --threads=0 \
+  codeql/misra-cpp-coding-standards
+
+# 2. Use precompiled queries with special flag
+codeql database analyze db \
+  path/to/precompiled.qlx \
+  --expect-discarded-cache \
+  --threads=0 \
+  --output=results.sarif
+```
+
+**Note**: The `--expect-discarded-cache` flag is required when using
+precompiled `.qlx` files to avoid cache-related errors.
 
 ---
 

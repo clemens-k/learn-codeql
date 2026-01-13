@@ -30,11 +30,6 @@ if [ ! -f "$CODEQL_HOME/codeql/codeql" ]; then
     exit 1
 fi
 
-if [ ! -d "$CODEQL_HOME/codeql-repo" ]; then
-    echo "❌ Libraries not found. Run ./install-libraries.sh first"
-    exit 1
-fi
-
 print_success "Prerequisites found"
 echo ""
 
@@ -56,9 +51,8 @@ if command -v jq &> /dev/null; then
     TMP_FILE=$(mktemp)
     jq ". + {
         \"codeQL.cli.executablePath\": \"$CODEQL_HOME/codeql/codeql\",
-        \"codeQL.runningQueries.numberOfThreads\": 4,
-        \"codeQL.runningQueries.memory\": 8192,
-        \"codeQL.cli.searchPath\": [\"$CODEQL_HOME/codeql-repo\"]
+        \"codeQL.runningQueries.numberOfThreads\": 0,
+        \"codeQL.runningQueries.memory\": 8192
     }" "$VSCODE_SETTINGS" > "$TMP_FILE"
     mv "$TMP_FILE" "$VSCODE_SETTINGS"
     print_success "Settings updated using jq"
@@ -71,11 +65,8 @@ else
     cat << EOF
 {
     "codeQL.cli.executablePath": "$CODEQL_HOME/codeql/codeql",
-    "codeQL.runningQueries.numberOfThreads": 4,
-    "codeQL.runningQueries.memory": 8192,
-    "codeQL.cli.searchPath": [
-        "$CODEQL_HOME/codeql-repo"
-    ]
+    "codeQL.runningQueries.numberOfThreads": 0,
+    "codeQL.runningQueries.memory": 8192
 }
 EOF
     echo ""

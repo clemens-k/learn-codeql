@@ -30,6 +30,10 @@ check_fail() {
     ((FAILED++))
 }
 
+check_warn() {
+    echo -e "${YELLOW}⚠${NC} $1"
+}
+
 check_info() {
     echo -e "${YELLOW}ℹ${NC} $1"
 }
@@ -54,50 +58,31 @@ else
     check_info "Run: source ~/.zshrc (or ~/.bashrc)"
 fi
 
-# Check 3: Standard libraries
+# Check 3: CodeQL bundle queries
 echo ""
-echo "3️⃣  Checking standard libraries..."
-if [ -d "$CODEQL_HOME/codeql-repo" ]; then
-    check_pass "Standard libraries found"
+echo "3️⃣  Checking CodeQL bundle queries..."
+if [ -d "$CODEQL_HOME/codeql/qlpacks/codeql" ]; then
+    check_pass "CodeQL bundle queries found"
     
-    # Check specific languages
-    for lang in cpp rust python java javascript; do
-        if [ -d "$CODEQL_HOME/codeql-repo/$lang" ]; then
-            check_pass "  $lang library present"
+    # Check specific language packs
+    for lang in cpp-queries rust-queries python-queries java-queries javascript-queries; do
+        if [ -d "$CODEQL_HOME/codeql/qlpacks/codeql/$lang" ]; then
+            check_pass "  $lang pack present"
         else
-            check_fail "  $lang library missing"
+            check_fail "  $lang pack missing"
         fi
     done
 else
-    check_fail "Standard libraries not found"
+    check_fail "CodeQL bundle queries not found"
 fi
 
 # Check 4: Coding standards (MISRA & CERT)
 echo ""
-echo "3️⃣b Checking coding standards..."
-if [ -d "$CODEQL_HOME/coding-standards" ]; then
-    check_pass "Coding standards repository found"
-    
-    # Check MISRA and CERT
-    if [ -d "$CODEQL_HOME/coding-standards/cpp/misra" ]; then
-        check_pass "  MISRA C++ queries present"
-    else
-        check_fail "  MISRA C++ queries missing"
-    fi
-    
-    if [ -d "$CODEQL_HOME/coding-standards/cpp/cert" ]; then
-        check_pass "  CERT C++ queries present"
-    else
-        check_fail "  CERT C++ queries missing"
-    fi
-    
-    # Check pack dependencies
-    if [ -d "$HOME/.codeql/packages/codeql/cpp-all" ]; then
-        check_pass "  Pack dependencies installed"
-    else
-        check_warn "  Pack dependencies not installed"
-        check_info "  Run: cd coding-standards/cpp/misra/src && codeql pack install"
-    fi
+echo "4️⃣  Checking coding standards..."
+
+if [ -d "$CODEQL_HOME/codeql-coding-standards" ] && [ -n "$(ls -A "$CODEQL_HOME/codeql-coding-standards" 2>/dev/null)" ]; then
+    PACK_COUNT=$(find "$CODEQL_HOME/codeql-coding-standards" -name "qlpack.yml" | wc -l)
+    check_pass "Coding standards found (${PACK_COUNT} packs installed)"
 else
     check_fail "Coding standards not found"
     check_info "  Run ./install-libraries.sh to install"
@@ -105,7 +90,7 @@ fi
 
 # Check 5: VS Code settings
 echo ""
-echo "4️⃣  Checking VS Code configuration..."
+echo "5️⃣  Checking VS Code configuration..."
 VSCODE_SETTINGS="$HOME/.vscode-server/data/Machine/settings.json"
 if [ -f "$VSCODE_SETTINGS" ]; then
     check_pass "VS Code settings file found"
@@ -154,6 +139,7 @@ if command -v codeql &> /dev/null && [ -d "test-cpp-project" ]; then
     if codeql database create "$TMP_DB" \
         --language=cpp \
         --source-root=test-cpp-project \
+        --threads=0 \
         --command="cd test-cpp-project/build && ninja" \
         > /dev/null 2>&1; then
         check_pass "Successfully created test database"
@@ -180,9 +166,8 @@ if [ $FAILED -eq 0 ]; then
     echo -e "${GREEN}🎉 All checks passed! Your CodeQL setup is complete.${NC}"
     echo ""
     echo "Next steps:"
-    echo "  • cd test-cpp-project && mkdir build && cd build && cmake .. -G Ninja && ninja"
-    echo "  • cd ../.. && ./create-cpp-database.sh"
-    echo "  • ./analyze-cpp-database.sh"
+    echo "  • lab/04-rust-setup/create-rust-database.sh"
+    echo "  • lab/05-cpp-cmake-setup/create-cpp-database.sh"
     exit 0
 else
     echo -e "${YELLOW}⚠️  Some checks failed. Review the output above.${NC}"

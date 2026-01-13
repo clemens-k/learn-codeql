@@ -19,6 +19,17 @@ if [ ! -f "$CODEQL_HOME/codeql/codeql" ]; then
     exit 1
 fi
 
+# Check if Rust extractor is available
+echo "🔍 Checking for Rust extractor..."
+if ! "$CODEQL_HOME/codeql/codeql" resolve languages | grep -q "rust"; then
+    echo "❌ Rust extractor not found in this CodeQL version"
+    echo "💡 Please upgrade CodeQL to at least version 2.22.1"
+    echo "   Rust support was added in CodeQL 2.22.1 (released June 2025)"
+    exit 1
+fi
+echo "✓ Rust extractor available"
+echo ""
+
 # Check Rust is installed
 if ! command -v cargo &> /dev/null; then
     echo "❌ Cargo not found. Please install Rust toolchain:"
@@ -55,7 +66,8 @@ echo ""
 
 "$CODEQL_HOME/codeql/codeql" database create "$DB_DIR" \
     --language=rust \
-    --source-root="$PROJECT_DIR"
+    --source-root="$PROJECT_DIR" \
+    --threads=0
 
 echo ""
 echo "✅ Database created: $DB_DIR"

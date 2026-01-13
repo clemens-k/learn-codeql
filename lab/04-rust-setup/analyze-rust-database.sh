@@ -6,7 +6,7 @@ set -e
 CODEQL_HOME="${CODEQL_HOME:-$HOME/.codeql-home}"
 DB_DIR="$(pwd)/databases/test-rust-db"
 RESULTS_DIR="$(pwd)/results"
-QUERY_SUITE="$CODEQL_HOME/codeql-repo/rust/ql/src/codeql-suites/rust-security-and-quality.qls"
+QUERY_SUITE="codeql/rust-queries"
 
 echo "🦀 Analyzing Rust Database with CodeQL"
 echo "======================================="
@@ -27,26 +27,15 @@ if [ ! -d "$DB_DIR" ]; then
     exit 1
 fi
 
-# Check query suite exists
-if [ ! -f "$QUERY_SUITE" ]; then
-    echo "❌ Query suite not found: $QUERY_SUITE"
-    echo "💡 Download CodeQL queries:"
-    echo "   codeql pack download codeql/rust-queries"
-    echo "💡 Or clone the CodeQL repo:"
-    echo "   git clone https://github.com/github/codeql.git $CODEQL_HOME/codeql-repo"
-    exit 1
-fi
-
 echo "✓ CodeQL found: $CODEQL_HOME/codeql/codeql"
 echo "✓ Database found: $DB_DIR"
-echo "✓ Query suite: rust-security-and-quality"
 echo ""
 
 # Create results directory
 mkdir -p "$RESULTS_DIR"
 
 # Run analysis
-echo "🚀 Running security and quality analysis..."
+echo "🚀 Running $QUERY_SUITE analysis..."
 echo "This may take 1-3 minutes..."
 echo ""
 
@@ -54,7 +43,7 @@ echo ""
     "$QUERY_SUITE" \
     --format=sarif-latest \
     --output="$RESULTS_DIR/rust-results.sarif" \
-    --threads=4 \
+    --threads=0 \
     --ram=8192
 
 echo ""
