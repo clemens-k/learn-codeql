@@ -19,10 +19,10 @@ provides a pre-configured development environment in your browser.
 2. Click **Code** → **Codespaces** → **Create codespace on main**
 3. Wait 2-3 minutes for the environment to build
 4. You'll have a complete environment with:
-   - C++ compiler and CMake
-   - Rust toolchain
-   - VS Code with CodeQL extension
-   - All build tools
+  - C++ compiler and CMake
+  - Rust toolchain
+  - VS Code with CodeQL extension
+  - All build tools
 
 ### Complete the Lab Exercises
 
@@ -76,7 +76,6 @@ instructions below.
 - Rust version: 1.65.0 or later recommended
 - codeql v2.22.1 include preview for rust support
 
-
 ---
 
 ## 📦 Installing CodeQL CLI
@@ -96,11 +95,14 @@ Download the appropriate bundle for your OS:
 **Step 2: Extract the Bundle**
 
 ```bash
+
 # Linux/macOS
+
 unzip codeql-linux64.zip -d ~/codeql-home
 cd ~/codeql-home/codeql
 
 # Windows (PowerShell)
+
 Expand-Archive codeql-win64.zip -DestinationPath C:\codeql-home
 cd C:\codeql-home\codeql
 ```
@@ -108,33 +110,44 @@ cd C:\codeql-home\codeql
 **Step 3: Add to PATH**
 
 ```bash
+
 # Linux/macOS (add to ~/.bashrc or ~/.zshrc)
+
 export PATH="$HOME/codeql-home/codeql:$PATH"
 
 # Reload shell
+
 source ~/.zshrc  # or ~/.bashrc
 
 # Windows (add to System Environment Variables)
+
 # Add C:\codeql-home\codeql to PATH
+
 ```
 
 **Step 4: Verify Installation**
 
 ```bash
 codeql --version
+
 # Should output: CodeQL command-line toolchain release 2.x.x
+
 ```
 
 ### Method 2: Using Homebrew (macOS/Linux)
 
 ```bash
+
 # Add GitHub tap
+
 brew tap github/codeql
 
 # Install CodeQL
+
 brew install codeql
 
 # Verify
+
 codeql --version
 ```
 
@@ -143,10 +156,12 @@ codeql --version
 If you only need CodeQL in CI/CD, GitHub Actions provides it:
 
 ```yaml
+
 - name: Initialize CodeQL
   uses: github/codeql-action/init@v2
   with:
     languages: cpp, rust
+
 ```
 
 ---
@@ -158,40 +173,56 @@ The standard query libraries contain built-in queries and utilities.
 ### Clone the CodeQL Repository
 
 ```bash
+
 # Choose a location
+
 cd ~/codeql-home
 
 # Clone the repository
+
 git clone https://github.com/github/codeql.git codeql-repo
 
 # This gives you:
+
 # - Standard libraries for all languages
+
 # - Built-in queries
+
 # - Examples and documentation
+
 ```
 
 ### Clone the Coding Standards Repository
 
-For MISRA and CERT compliance checking, clone the official coding 
+For MISRA and CERT compliance checking, clone the official coding
 standards repository:
 
 ```bash
+
 # Clone coding standards (MISRA & CERT queries)
+
 cd ~/codeql-home
 git clone https://github.com/github/codeql-coding-standards.git \
   coding-standards
 
 # This gives you:
+
 # - MISRA C:2012 queries
-# - MISRA C++:2023 queries  
+
+# - MISRA C++:2023 queries
+
 # - CERT C queries
+
 # - CERT C++ queries
+
 # - Compliance query suites
+
 ```
 
 **Why separate repository?**
 
 The coding standards queries are maintained separately because:
+
 - They follow external standards (MISRA, CERT)
 - Have their own release cycle
 - Require specific documentation and licensing
@@ -202,11 +233,14 @@ After cloning the coding standards repository, you need to install
 the query pack dependencies:
 
 ```bash
+
 # Install MISRA C++ dependencies
+
 cd ~/codeql-home/coding-standards/cpp/misra/src
 codeql pack install
 
 # Install CERT C++ dependencies
+
 cd ~/codeql-home/coding-standards/cpp/cert/src
 codeql pack install
 ```
@@ -219,6 +253,7 @@ codeql pack install
 - Required before running MISRA/CERT queries
 
 **Common packages installed:**
+
 - `codeql/cpp-all` - C++ standard library
 - `codeql/dataflow` - Data flow analysis
 - `codeql/util` - Utility functions
@@ -279,11 +314,11 @@ Search for "CodeQL" and configure:
 
 ```json
 {
-  "codeQL.cli.executablePath": 
+  "codeQL.cli.executablePath":
     "/home/your-username/codeql-home/codeql/codeql",
-  
+
   "codeQL.runningQueries.numberOfThreads": 0,
-  
+
   "codeQL.runningQueries.memory": 8192
 }
 ```
@@ -321,12 +356,17 @@ mkdir ~/my-codeql-workspace
 cd ~/my-codeql-workspace
 
 # Create directories
+
 mkdir -p databases queries results
 
 # Structure:
+
 # databases/  - CodeQL databases for your projects
+
 # queries/    - Your custom queries
+
 # results/    - Query results (SARIF, CSV, etc.)
+
 ```
 
 ### Configure Search Paths
@@ -337,12 +377,17 @@ Create `codeql-workspace.yml`:
 name: My CodeQL Workspace
 
 # Search paths for libraries
+
 libraryPathDependencies:
+
   - /home/your-username/codeql-home/codeql-repo
 
 # Additional query directories
+
 additionalPacks:
+
   - ./queries
+
 ```
 
 ---
@@ -352,13 +397,17 @@ additionalPacks:
 ### Test 1: Check CLI
 
 ```bash
+
 # Get version
+
 codeql version
 
 # Get help
+
 codeql --help
 
 # List available languages
+
 codeql resolve languages
 ```
 
@@ -369,9 +418,12 @@ Expected output should include: `cpp`, `rust`, and others.
 **For C++:**
 
 ```bash
+
 # Create a simple C++ file
+
 mkdir -p /tmp/test-cpp
 cat > /tmp/test-cpp/test.cpp << 'EOF'
+
 #include <iostream>
 
 int main() {
@@ -381,6 +433,7 @@ int main() {
 EOF
 
 # Create CodeQL database
+
 codeql database create /tmp/test-cpp-db \
   --language=cpp \
   --threads=0 \
@@ -388,28 +441,35 @@ codeql database create /tmp/test-cpp-db \
   --source-root=/tmp/test-cpp
 
 # Should complete successfully
+
 ```
 
 **For Rust:**
 
 ```bash
+
 # Create a simple Rust project
+
 cargo new /tmp/test-rust
 cd /tmp/test-rust
 
 # Create CodeQL database
+
 codeql database create /tmp/test-rust-db \
   --language=rust \
   --threads=0 \
   --source-root=.
 
 # Should complete successfully
+
 ```
 
 ### Test 3: Run a Built-in Query
 
 ```bash
+
 # Using the C++ database
+
 codeql database analyze /tmp/test-cpp-db \
   ~/codeql-home/codeql-repo/cpp/ql/src/codeql-suites/cpp-security-extended.qls \
   --format=sarif-latest \
@@ -417,6 +477,7 @@ codeql database analyze /tmp/test-cpp-db \
   --output=/tmp/results.sarif
 
 # View results
+
 cat /tmp/results.sarif
 ```
 
@@ -475,15 +536,19 @@ cat /tmp/results.sarif
 **Memory Settings** (`~/.config/codeql/config`):
 
 ```yaml
+
 # Allocate more memory for queries
+
 runningQueries:
   memory: 16384  # MB
 
 # Use more CPU cores
+
 runningQueries:
   numberOfThreads: 8
 
 # Cache settings
+
 caching:
   maxDiskCache: 10240  # MB
 ```
@@ -496,16 +561,20 @@ caching:
 name: my-cpp-config
 
 # Additional include paths
+
 cpp:
   compiler:
     extraIncludes:
+
       - /usr/local/include
       - /opt/custom/include
-  
+
   # Preprocessor definitions
+
   defines:
     - MY_DEFINE=1
     - DEBUG
+
 ```
 
 **Rust Specific**:
@@ -514,13 +583,18 @@ cpp:
 name: my-rust-config
 
 rust:
+
   # Cargo features to enable
+
   features:
+
     - feature1
     - feature2
-  
+
   # Target specification
+
   target: x86_64-unknown-linux-gnu
+
 ```
 
 ### Path Filters
@@ -529,14 +603,17 @@ Exclude paths from analysis:
 
 ```yaml
 paths-ignore:
+
   - '**/test/**'
   - '**/build/**'
   - '**/third-party/**'
   - '**/*.test.cpp'
 
 paths:
+
   - 'src/**'
   - 'include/**'
+
 ```
 
 ---
@@ -550,13 +627,17 @@ paths:
 **Solution**:
 
 ```bash
+
 # Verify PATH
+
 echo $PATH
 
 # Re-add to PATH
+
 export PATH="$HOME/codeql-home/codeql:$PATH"
 
 # Make permanent
+
 echo 'export PATH="$HOME/codeql-home/codeql:$PATH"' >> ~/.zshrc
 source ~/.zshrc
 ```
@@ -581,8 +662,11 @@ source ~/.zshrc
 **Solution**:
 
 ```bash
+
 # Ensure your build command actually compiles
+
 # Use verbose build to verify:
+
 codeql database create db --language=cpp \
   --command="make clean && make" \
   --source-root=. \
@@ -597,10 +681,13 @@ codeql database create db --language=cpp \
 **Solution**:
 
 ```bash
+
 # Ensure project builds first
+
 cargo build
 
 # Then create database
+
 codeql database create db --language=rust \
   --source-root=. \
   --threads=0
@@ -613,10 +700,13 @@ codeql database create db --language=rust \
 **Solution**:
 
 ```bash
+
 # Increase memory limit
+
 codeql query run --ram=16384 query.ql
 
 # Or in VS Code settings:
+
 "codeQL.runningQueries.memory": 16384
 ```
 
@@ -629,13 +719,16 @@ codeql query run --ram=16384 query.ql
 **Recommended**: Always use `--threads=0` to utilize all CPU cores:
 
 ```bash
+
 # Database creation
+
 codeql database create db \
   --language=cpp \
   --threads=0 \
   --command="ninja"
 
 # Analysis
+
 codeql database analyze db \
   query-suite.qls \
   --threads=0 \
@@ -643,6 +736,7 @@ codeql database analyze db \
 ```
 
 **Why `--threads=0`?**
+
 - `0` = Use all available CPU cores automatically
 - `N` = Use exactly N threads
 - `-N` = Use all cores minus N (leave N cores free)
@@ -658,13 +752,16 @@ The modern approach is to not use this rules cache, but to compile `.qlx` files
 instead like so:
 
 ```bash
+
 # 1. Precompile queries to .qlx files
+
 codeql query compile \
   --precompile \
   --threads=0 \
   codeql/misra-cpp-coding-standards
 
 # 2. Use precompiled queries with special flag
+
 codeql database analyze db \
   path/to/precompiled.qlx \
   --expect-discarded-cache \
@@ -704,7 +801,7 @@ cd lab/03-installation
 
 Complete the interactive lab exercises:
 
-- 🧪 **[Lab 03: Installation](lab/03-installation/README.md)** - 
+- 🧪 **[Lab 03: Installation](lab/03-installation/README.md)** -
   Hands-on installation and testing
 
 ### Language-Specific Guides

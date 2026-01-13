@@ -11,16 +11,16 @@ what technologies power it.
 
 Github publishes in multiple ways:
 
-- codeql cli binaries on https://github.com/github/codeql-cli-binaries/releases/
-   - this does not include any rules!
-   - asset: ~500 MB zip
-- codeql bundle on https://github.com/github/codeql-action/releases
-   - include cli binary + all supported language queries
-   -  asset: ~700 MB .tar.gz
-- codeql coding standards on https://github.com/github/codeql-coding-standards/releases
-   - includes MISRA C / C++ and CERT C / C++
-   - asset: ~160 MB .zip
-   - notice: qlpack.yml point to a particular cli binary version
+- codeql cli binaries on <https://github.com/github/codeql-cli-binaries/releases/>
+  - this does not include any rules!
+  - asset: ~500 MB zip
+- codeql bundle on <https://github.com/github/codeql-action/releases>
+  - include cli binary + all supported language queries
+  - asset: ~700 MB .tar.gz
+- codeql coding standards on <https://github.com/github/codeql-coding-standards/releases>
+  - includes MISRA C / C++ and CERT C / C++
+  - asset: ~160 MB .zip
+  - notice: qlpack.yml point to a particular cli binary version
 
 ---
 
@@ -167,45 +167,45 @@ Columns: id, function_id, successor_id, type
 **For C++ (using Clang):**
 
 1. **Compilation Interception**
-   - CodeQL intercepts your build commands
-   - Observes how the compiler is invoked
-   - Captures all source files, headers, and flags
+  - CodeQL intercepts your build commands
+  - Observes how the compiler is invoked
+  - Captures all source files, headers, and flags
 
 2. **AST Generation**
-   - Uses Clang to parse C++ code
-   - Generates full Abstract Syntax Tree
-   - Resolves all includes and templates
+  - Uses Clang to parse C++ code
+  - Generates full Abstract Syntax Tree
+  - Resolves all includes and templates
 
 3. **Semantic Analysis**
-   - Type checking and resolution
-   - Template instantiation
-   - Symbol resolution across translation units
+  - Type checking and resolution
+  - Template instantiation
+  - Symbol resolution across translation units
 
 4. **TRAP File Generation**
-   - Extracts facts in TRAP format
-   - Example: `function(#123, "myFunc", "void(int)")`
-   - Relations: `calls(#456, #123)` (function 456 calls 123)
+  - Extracts facts in TRAP format
+  - Example: `function(#123, "myFunc", "void(int)")`
+  - Relations: `calls(#456, #123)` (function 456 calls 123)
 
 **For Rust:**
 
 1. **Cargo Integration**
-   - Integrates with Cargo build system
-   - Uses `cargo check` or `cargo build`
-   - Captures all dependencies
+  - Integrates with Cargo build system
+  - Uses `cargo check` or `cargo build`
+  - Captures all dependencies
 
 2. **HIR/MIR Analysis**
-   - Accesses Rust's High-level IR (HIR)
-   - Optionally uses Mid-level IR (MIR)
-   - Extracts borrow checker information
+  - Accesses Rust's High-level IR (HIR)
+  - Optionally uses Mid-level IR (MIR)
+  - Extracts borrow checker information
 
 3. **Trait Resolution**
-   - Resolves trait implementations
-   - Captures generic instantiations
-   - Tracks lifetime information
+  - Resolves trait implementations
+  - Captures generic instantiations
+  - Tracks lifetime information
 
 4. **TRAP File Generation**
-   - Similar to C++, but Rust-specific entities
-   - Includes ownership and lifetime facts
+  - Similar to C++, but Rust-specific entities
+  - Includes ownership and lifetime facts
 
 ### Phase 2: Database Creation
 
@@ -214,20 +214,20 @@ TRAP Files → Import → Relations → Index → CodeQL Database
 ```
 
 1. **Import TRAP Files**
-   - Parse all generated TRAP files
-   - Validate data integrity
+  - Parse all generated TRAP files
+  - Validate data integrity
 
 2. **Populate Relations**
-   - Load facts into database tables
-   - Resolve cross-references
+  - Load facts into database tables
+  - Resolve cross-references
 
 3. **Build Indices**
-   - Create indices for efficient querying
-   - Optimize for common query patterns
+  - Create indices for efficient querying
+  - Optimize for common query patterns
 
 4. **Compress & Package**
-   - Compress database for storage
-   - Create metadata files
+  - Compress database for storage
+  - Create metadata files
 
 **Database Structure:**
 
@@ -246,23 +246,23 @@ my-database/
 ### Phase 3: Query Execution
 
 1. **Query Parsing**
-   - Parse QL query syntax
-   - Type checking and validation
+  - Parse QL query syntax
+  - Type checking and validation
 
 2. **Query Optimization (Compiling Query Plan - if not done already)**
-   - Rewrite rules for efficiency
-   - Join order optimization
-   - Predicate inlining
+  - Rewrite rules for efficiency
+  - Join order optimization
+  - Predicate inlining
 
 3. **Evaluation**
-   - Execute optimized query plan
-   - Incremental evaluation where possible
-   - Parallel execution for independent predicates
+  - Execute optimized query plan
+  - Incremental evaluation where possible
+  - Parallel execution for independent predicates
 
 4. **Result Formatting**
-   - Generate results in requested format
-   - Add source locations and context
-   - Format as SARIF, CSV, JSON, etc.
+  - Generate results in requested format
+  - Add source locations and context
+  - Format as SARIF, CSV, JSON, etc.
 
 #### Understanding "Compiling Query Plan" 🐌
 
@@ -336,46 +336,55 @@ codeql database analyze db path/to/query.qlx \
 ```
 
 2. **Legacy: Pre-Compile Queries in Advance**
-   
+
    You can pre-warm the compilation cache before analysis:
-   
+
    ```bash
+
    # Compile queries without running them
+
    codeql query compile path/to/query.ql
-   
+
    # Compile all queries in a suite
+
    codeql query compile path/to/suite.qls
-   
+
    # Compile entire query pack
+
    codeql query compile ~/.codeql-home/codeql-repo/cpp/ql/src/
    ```
-   
+
    This is useful for:
-   - CI/CD pipelines (pre-compile in a setup step)
-   - Sharing cache between team members
-   - Speeding up first-time analysis
+  - CI/CD pipelines (pre-compile in a setup step)
+  - Sharing cache between team members
+  - Speeding up first-time analysis
 
 3. **Minimize Imports**
-   - Only import what you need
-   - Avoid `import cpp` if you only need specific modules
-   - Use targeted imports like `import cpp.dataflow.DataFlow`
+  - Only import what you need
+  - Avoid `import cpp` if you only need specific modules
+  - Use targeted imports like `import cpp.dataflow.DataFlow`
 
 4. **Simplify Complex Queries**
-   - Break very complex queries into simpler components
-   - Test predicates independently before combining
-   - Avoid deeply nested recursion when possible
+  - Break very complex queries into simpler components
+  - Test predicates independently before combining
+  - Avoid deeply nested recursion when possible
 
 **Managing the Cache:**
 
 ```bash
+
 # Check cache size
+
 du -sh ~/.codeql/compile-cache
 
 # Clear the cache (will force recompilation)
+
 rm -rf ~/.codeql/compile-cache
 
 # Cache is automatically cleaned/managed by CodeQL
+
 # Old entries are removed when cache grows too large
+
 ```
 
 ## 📦 Dependencies & Requirements
@@ -645,9 +654,11 @@ select call, "Use of unsafe strcpy function"
 
 ```yaml
 paths:
+
   - include: "src/**"
   - exclude: "tests/**"
   - exclude: "build/**"
+
 ```
 
 **Build Command Override:**
@@ -662,22 +673,27 @@ codeql database create db --language=cpp \
 **Query Suites** (`.qls`):
 
 ```yaml
+
 - description: Security queries for C++
 - query: security/*.ql
 - exclude:
     tags contain: experimental
+
 ```
 
 **Analysis Config** (`.github/codeql/config.yml`):
 
 ```yaml
 queries:
+
   - uses: security-extended
   - uses: security-and-quality
 
 paths-ignore:
+
   - '**/*.test.cpp'
   - 'third-party/**'
+
 ```
 
 ---
@@ -707,24 +723,24 @@ paths-ignore:
 ## 📚 Key Takeaways
 
 1. **CodeQL = Database + Query Engine**
-   - Code is extracted into a queryable database
-   - QL language queries the database
+  - Code is extracted into a queryable database
+  - QL language queries the database
 
 2. **Three-Phase Process**
-   - Extract → Build Database → Query
+  - Extract → Build Database → Query
 
 3. **Language-Specific Extractors**
-   - Different extractor for each language
-   - C++ uses Clang, Rust uses rust-analyzer
+  - Different extractor for each language
+  - C++ uses Clang, Rust uses rust-analyzer
 
 4. **SARIF is the Standard Output**
-   - Industry-standard format
-   - Best for tooling integration
-   - Other formats available (CSV, JSON, BQRS)
+  - Industry-standard format
+  - Best for tooling integration
+  - Other formats available (CSV, JSON, BQRS)
 
 5. **Powerful Query Language**
-   - Logic programming with OOP features
-   - Built for code analysis patterns
+  - Logic programming with OOP features
+  - Built for code analysis patterns
 
 ---
 

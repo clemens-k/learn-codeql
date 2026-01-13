@@ -65,6 +65,7 @@ CodeQL provides several pre-built C++ query suites:
 **Focus**: High-confidence security vulnerabilities
 
 **Characteristics**:
+
 - Low false positive rate
 - Production-ready
 - Fast execution
@@ -79,6 +80,7 @@ CodeQL provides several pre-built C++ query suites:
 **Focus**: Security + code quality
 
 **Characteristics**:
+
 - Balanced precision/recall
 - Security and maintainability
 - Moderate execution time
@@ -93,6 +95,7 @@ CodeQL provides several pre-built C++ query suites:
 **Focus**: All security-related queries
 
 **Characteristics**:
+
 - Highest coverage
 - More false positives
 - Longer execution time
@@ -189,7 +192,9 @@ codeql database analyze rust-db \
 If you have the CodeQL repository cloned:
 
 ```bash
+
 # C++
+
 codeql database analyze cpp-db \
     $CODEQL_HOME/codeql-repo/cpp/ql/src/codeql-suites/\
 cpp-security-and-quality.qls \
@@ -197,6 +202,7 @@ cpp-security-and-quality.qls \
     --output=results.sarif
 
 # Rust
+
 codeql database analyze rust-db \
     $CODEQL_HOME/codeql-repo/rust/ql/src/codeql-suites/\
 rust-security-and-quality.qls \
@@ -254,7 +260,9 @@ Find potential bugs:
 Filter queries by severity:
 
 ```bash
+
 # Only error-level queries
+
 codeql database analyze cpp-db \
     codeql/cpp-queries:codeql-suites/cpp-security-and-quality.qls \
     --format=sarif-latest \
@@ -262,9 +270,11 @@ codeql database analyze cpp-db \
     --severity=error
 
 # Warning and above
+
 --severity=warning
 
 # Include recommendations
+
 --severity=recommendation
 ```
 
@@ -273,13 +283,16 @@ codeql database analyze cpp-db \
 Target specific CWE (Common Weakness Enumeration) categories:
 
 ```bash
+
 # Buffer overflows (CWE-119)
+
 codeql database analyze cpp-db \
     $CODEQL_HOME/codeql-repo/cpp/ql/src/Security/CWE/CWE-119/ \
     --format=sarif-latest \
     --output=buffer-overflow-results.sarif
 
 # Injection flaws (CWE-78)
+
 $CODEQL_HOME/codeql-repo/cpp/ql/src/Security/CWE/CWE-078/
 ```
 
@@ -288,7 +301,9 @@ $CODEQL_HOME/codeql-repo/cpp/ql/src/Security/CWE/CWE-078/
 Create a custom `.qls` file:
 
 ```yaml
+
 # custom-queries.qls
+
 - description: "My custom query suite"
 - queries: .
 - include:
@@ -301,6 +316,7 @@ Create a custom `.qls` file:
 - exclude:
     tags:
       - experimental
+
 ```
 
 Run your custom suite:
@@ -321,16 +337,18 @@ Each query includes metadata:
 
 ```ql
 /**
- * @name Buffer overflow
- * @description Writing beyond buffer bounds
- * @kind path-problem
- * @problem.severity error
- * @security-severity 9.8
- * @precision high
- * @id cpp/buffer-overflow
- * @tags security
- *       external/cwe/cwe-119
+
+* @name Buffer overflow
+* @description Writing beyond buffer bounds
+* @kind path-problem
+* @problem.severity error
+* @security-severity 9.8
+* @precision high
+* @id cpp/buffer-overflow
+* @tags security
+* external/cwe/cwe-119
  */
+
 ```
 
 **Key fields:**
@@ -346,21 +364,25 @@ Each query includes metadata:
 ### Result Severity Levels
 
 **Error** (🔴):
+
 - Critical security issues
 - High-confidence bugs
 - Must fix before release
 
 **Warning** (🟡):
+
 - Likely problems
 - Security concerns
 - Should fix
 
 **Recommendation** (🔵):
+
 - Code quality improvements
 - Best practice violations
 - Consider fixing
 
 **Note** (⚪):
+
 - Informational
 - Style suggestions
 - Optional improvements
@@ -368,21 +390,25 @@ Each query includes metadata:
 ### Precision Levels
 
 **Very High**:
+
 - Extremely low false positive rate
 - Almost always a real issue
 - Act immediately
 
 **High**:
+
 - Low false positive rate
 - Usually a real problem
 - High priority
 
 **Medium**:
+
 - Some false positives expected
 - Requires human judgment
 - Review carefully
 
 **Low**:
+
 - Higher false positive rate
 - May need context to verify
 - Use for exploration
@@ -419,19 +445,23 @@ codeql database analyze cpp-db queries.qls \
 Run multiple suites and merge results:
 
 ```bash
+
 # Run security suite
+
 codeql database analyze cpp-db \
     codeql/cpp-queries:codeql-suites/cpp-security-extended.qls \
     --format=sarif-latest \
     --output=security-results.sarif
 
 # Run quality suite
+
 codeql database analyze cpp-db \
     codeql/cpp-queries:codeql-suites/cpp-code-scanning.qls \
     --format=sarif-latest \
     --output=quality-results.sarif
 
 # Merge with jq
+
 jq -s '.[0] * .[1]' security-results.sarif quality-results.sarif \
     > combined-results.sarif
 ```
@@ -441,20 +471,25 @@ jq -s '.[0] * .[1]' security-results.sarif quality-results.sarif \
 For faster re-analysis:
 
 ```bash
+
 # First run (full)
+
 codeql database analyze cpp-db queries.qls \
     --format=sarif-latest \
     --output=results.sarif
 
 # Save results for comparison
+
 cp results.sarif baseline.sarif
 
 # After code changes, compare
+
 codeql database analyze cpp-db queries.qls \
     --format=sarif-latest \
     --output=new-results.sarif
 
 # Find new issues
+
 jq --slurpfile baseline baseline.sarif \
    '.runs[0].results - $baseline[0].runs[0].results' \
    new-results.sarif
@@ -465,31 +500,38 @@ jq --slurpfile baseline baseline.sarif \
 **By file path:**
 
 ```bash
+
 # Only analyze src/ directory
+
 codeql database analyze cpp-db queries.qls \
     --format=sarif-latest \
     --output=results.sarif \
     -- --include='src/**'
 
 # Exclude tests
+
 -- --exclude='test/**'
 ```
 
 **Post-processing with jq:**
 
 ```bash
+
 # Only errors
+
 jq '.runs[0].results |= map(select(.level == "error"))' \
     results.sarif > errors-only.sarif
 
 # Specific CWE
-jq '.runs[0].results |= 
-    map(select(.rule.properties.tags | 
+
+jq '.runs[0].results |=
+    map(select(.rule.properties.tags |
     contains(["external/cwe/cwe-119"])))' \
     results.sarif > buffer-overflows.sarif
 
 # High severity only
-jq '.runs[0].results |= 
+
+jq '.runs[0].results |=
     map(select(.rule.properties."security-severity" >= 7.0))' \
     results.sarif > high-severity.sarif
 ```
@@ -530,7 +572,9 @@ Approximate times for medium-sized project (100K LOC):
 Begin with `code-scanning` suite:
 
 ```bash
+
 # First analysis
+
 codeql database analyze cpp-db \
     codeql/cpp-queries:codeql-suites/cpp-code-scanning.qls \
     --format=sarif-latest \
@@ -553,12 +597,15 @@ Establish a cadence:
 Establish a baseline:
 
 ```bash
+
 # Initial scan
+
 codeql database analyze cpp-db queries.qls \
     --format=sarif-latest \
     --output=baseline-$(date +%Y%m%d).sarif
 
 # Track over time
+
 mkdir baselines/
 cp results.sarif baselines/baseline-$(date +%Y%m%d).sarif
 ```
@@ -568,8 +615,10 @@ cp results.sarif baselines/baseline-$(date +%Y%m%d).sarif
 Prioritize by security-severity and precision:
 
 ```bash
+
 # Critical issues only
-jq '.runs[0].results |= 
+
+jq '.runs[0].results |=
     map(select(
         .rule.properties."security-severity" >= 9.0 and
         .rule.properties.precision == "very-high"
@@ -581,7 +630,9 @@ jq '.runs[0].results |=
 Create project-specific suite:
 
 ```yaml
+
 # project-queries.qls
+
 - description: "Project security checks"
 - queries: .
 - from: codeql/cpp-queries
@@ -597,6 +648,7 @@ Create project-specific suite:
       - experimental
     query path:
       - "**/test/**"
+
 ```
 
 ---
@@ -613,6 +665,7 @@ cd lab/06-built-in-queries
 ```
 
 This interactive script will guide you through:
+
 - Running query suites
 - Comparing results
 - Creating custom suites
@@ -620,6 +673,7 @@ This interactive script will guide you through:
 ### Lab Structure
 
 The lab includes:
+
 - **Scripts**: Automated analysis and comparison tools
 - **Custom Suites**: Pre-made query suite templates
 - **Exercises**: Hands-on practice with real results
@@ -632,15 +686,18 @@ See `lab/06-built-in-queries/README.md` for detailed exercises.
 cd lab/05-cpp-cmake-setup
 
 # Run different suites
+
 ./analyze-cpp-database.sh  # Uses security-and-quality
 
 # Try code-scanning suite
+
 codeql database analyze databases/test-cpp-db \
     codeql/cpp-queries:codeql-suites/cpp-code-scanning.qls \
     --format=sarif-latest \
     --output=results/cpp-code-scanning.sarif
 
 # Compare results
+
 jq '.runs[0].results | length' results/*.sarif
 ```
 
@@ -650,16 +707,19 @@ jq '.runs[0].results | length' results/*.sarif
 cd lab/04-rust-setup
 
 # Run different suites
+
 ./analyze-rust-database.sh  # Uses security-and-quality
 
 # Try extended suite
+
 codeql database analyze databases/test-rust-db \
     codeql/rust-queries:codeql-suites/rust-security-extended.qls \
     --format=sarif-latest \
     --output=results/rust-security-extended.sarif
 
 # Count findings by severity
-jq '.runs[0].results | group_by(.level) | 
+
+jq '.runs[0].results | group_by(.level) |
     map({severity: .[0].level, count: length})' \
     results/rust-security-extended.sarif
 ```
@@ -671,34 +731,41 @@ jq '.runs[0].results | group_by(.level) |
 ### C++ Security Queries
 
 **Buffer Overflow:**
+
 - `cpp/buffer-overflow`
 - `cpp/unbounded-write`
 
 **Memory Safety:**
+
 - `cpp/use-after-free`
 - `cpp/memory-leak`
 - `cpp/double-free`
 
 **Null Pointer:**
+
 - `cpp/null-dereference`
 - `cpp/potential-null-dereference`
 
 **Integer Issues:**
+
 - `cpp/integer-overflow`
 - `cpp/uncontrolled-arithmetic`
 
 ### Rust Quality Queries
 
 **Error Handling:**
+
 - `rust/unwrap-result`
 - `rust/panic-in-result-fn`
 
 **Code Quality:**
+
 - `rust/unused-variable`
 - `rust/unreachable-code`
 - `rust/redundant-clone`
 
 **Performance:**
+
 - `rust/inefficient-regex`
 - `rust/unnecessary-allocation`
 

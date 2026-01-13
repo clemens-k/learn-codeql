@@ -1,6 +1,6 @@
 # 📖 Introduction to CodeQL
 
-## 🎯 What is CodeQL?
+## 🎯 What is CodeQL
 
 CodeQL is a **semantic code analysis engine** developed by GitHub
 that treats code as data. It allows you to write queries to find
@@ -64,32 +64,32 @@ and data flow relationships.
 ### 🔍 Primary Use Cases
 
 1. **Security Vulnerability Detection**
-   - Find SQL injection, XSS, buffer overflows
-   - Detect authentication and authorization flaws
-   - Identify cryptographic weaknesses
+  - Find SQL injection, XSS, buffer overflows
+  - Detect authentication and authorization flaws
+  - Identify cryptographic weaknesses
 
 2. **Code Quality Analysis**
-   - Detect code smells and anti-patterns
-   - Find dead code and unused variables
-   - Identify overly complex functions
+  - Detect code smells and anti-patterns
+  - Find dead code and unused variables
+  - Identify overly complex functions
 
 3. **Compliance Checking**
 
-   - Verify adherence to MISRA C/C++ standards
-   - Check CERT coding guidelines
-   - Enforce custom organizational standards
+  - Verify adherence to MISRA C/C++ standards
+  - Check CERT coding guidelines
+  - Enforce custom organizational standards
 
 4. **Bug Prevention**
 
-   - Find null pointer dereferences
-   - Detect resource leaks
-   - Identify race conditions
+  - Find null pointer dereferences
+  - Detect resource leaks
+  - Identify race conditions
 
 5. **Refactoring Support**
 
-   - Find all usages of deprecated APIs
-   - Identify code duplication
-   - Locate similar code patterns
+  - Find all usages of deprecated APIs
+  - Identify code duplication
+  - Locate similar code patterns
 
 ### ✨ Key Benefits
 
@@ -191,7 +191,7 @@ and data flow relationships.
 
 ---
 
-## 🎓 Who Should Learn CodeQL?
+## 🎓 Who Should Learn CodeQL
 
 ### Primary Audiences
 
@@ -226,22 +226,22 @@ and data flow relationships.
 This learning repository covers:
 
 1. **Basics** (Start Here!)
-   - Installation and setup
-   - Running built-in queries
-   - Understanding results and SARIF output
+  - Installation and setup
+  - Running built-in queries
+  - Understanding results and SARIF output
 
 2. **Language-Specific Guides**
-   - Rust project analysis
-   - C++/CMake project analysis
+  - Rust project analysis
+  - C++/CMake project analysis
 
 3. **Standards Compliance**
-   - MISRA C/C++ guidelines
-   - CERT coding standards
+  - MISRA C/C++ guidelines
+  - CERT coding standards
 
 4. **Advanced Topics**
-   - Custom query development
-   - Performance optimization
-   - CI/CD integration
+  - Custom query development
+  - Performance optimization
+  - CI/CD integration
 
 ---
 

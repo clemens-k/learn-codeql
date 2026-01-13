@@ -68,16 +68,21 @@ to the complexity of the language and extensive standard library.
 CodeQL works with any standard C++ compiler. For best results:
 
 ```bash
+
 # GCC (Linux)
+
 sudo apt-get install build-essential cmake ninja-build
 
 # Clang (Linux)
+
 sudo apt-get install clang cmake ninja-build
 
 # macOS (using Homebrew)
+
 brew install cmake ninja
 
 # Verify installation
+
 cmake --version
 g++ --version
 ```
@@ -130,10 +135,13 @@ This command:
 For better control, separate CMake configuration and build:
 
 ```bash
+
 # Configure CMake first (outside CodeQL)
+
 cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug
 
 # Create database with clean build
+
 codeql database create cpp-db \
     --language=cpp \
     --source-root=. \
@@ -251,17 +259,21 @@ No special CodeQL configuration needed in `CMakeLists.txt`, but
 consider:
 
 ```cmake
+
 # Good: Clear compiler flags
+
 target_compile_options(myapp PRIVATE
     -Wall -Wextra -Wpedantic
 )
 
 # Good: Explicit include directories
+
 target_include_directories(myapp PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
 # Good: Clear dependencies
+
 target_link_libraries(myapp PRIVATE
     somelib
     pthread
@@ -273,13 +285,16 @@ target_link_libraries(myapp PRIVATE
 For projects with multiple targets:
 
 ```bash
+
 # Build all targets
+
 codeql database create cpp-db \
     --language=cpp \
     --source-root=. \
     --command="ninja -C build all"
 
 # Or build specific targets
+
 codeql database create cpp-db \
     --language=cpp \
     --source-root=. \
@@ -298,7 +313,9 @@ root:
 ```yaml
 name: "my-cpp-project"
 languages:
+
   - cpp
+
 primaryLanguage: cpp
 ```
 
@@ -308,11 +325,13 @@ To skip certain directories (e.g., third-party code):
 
 ```yaml
 paths-ignore:
+
   - build/
   - external/
   - third-party/
   - tests/fixtures/
   - .cache/
+
 ```
 
 ### Include Path Filtering
@@ -321,8 +340,10 @@ Focus analysis on specific paths:
 
 ```yaml
 paths:
+
   - src/
   - include/
+
 ```
 
 ### Custom Queries Configuration
@@ -348,19 +369,19 @@ Create `.codeqlmanifest.json` for query metadata:
 CodeQL provides several pre-built query suites for C++:
 
 1. **`cpp-security-extended.qls`**
-   - All security-related queries
-   - Best for comprehensive security audits
-   - Higher false positive rate
+  - All security-related queries
+  - Best for comprehensive security audits
+  - Higher false positive rate
 
 2. **`cpp-security-and-quality.qls`**
-   - Security + code quality checks
-   - **Recommended starting point**
-   - Balanced precision/recall
+  - Security + code quality checks
+  - **Recommended starting point**
+  - Balanced precision/recall
 
 3. **`cpp-code-scanning.qls`**
-   - Optimized for GitHub Code Scanning
-   - Lower false positives
-   - Production-ready queries
+  - Optimized for GitHub Code Scanning
+  - Lower false positives
+  - Production-ready queries
 
 ### Running Analysis
 
@@ -389,15 +410,19 @@ codeql database analyze cpp-db \
 If you cloned the CodeQL repository:
 
 ```bash
+
 # Security and quality (recommended)
+
 $CODEQL_HOME/codeql-repo/cpp/ql/src/codeql-suites/\
 cpp-security-and-quality.qls
 
 # Security extended
+
 $CODEQL_HOME/codeql-repo/cpp/ql/src/codeql-suites/\
 cpp-security-extended.qls
 
 # Code scanning
+
 $CODEQL_HOME/codeql-repo/cpp/ql/src/codeql-suites/\
 cpp-code-scanning.qls
 ```
@@ -407,7 +432,9 @@ cpp-code-scanning.qls
 To run individual queries:
 
 ```bash
+
 # Find buffer overflows
+
 codeql database analyze cpp-db \
     $CODEQL_HOME/codeql-repo/cpp/ql/src/\
 Security/CWE/CWE-119/BufferOverflow.ql \
@@ -488,7 +515,7 @@ void process(int* ptr) {
 
 ## 📄 SARIF Output Format
 
-### What is SARIF?
+### What is SARIF
 
 **SARIF** (Static Analysis Results Interchange Format) is a JSON-based
 format for static analysis tools. It's an OASIS standard (ISO/IEC
@@ -552,7 +579,9 @@ A CodeQL SARIF file contains:
 **1. VS Code SARIF Viewer Extension:**
 
 ```bash
+
 # Install the extension
+
 code --install-extension MS-SarifVSCode.sarif-viewer
 ```
 
@@ -562,17 +591,22 @@ source navigation.
 **2. Command-line with `jq`:**
 
 ```bash
+
 # Count total results
+
 jq '.runs[0].results | length' results.sarif
 
 # List all rule IDs
+
 jq '.runs[0].results[].ruleId' results.sarif | sort | uniq
 
 # Show error-level findings
+
 jq '.runs[0].results[] | select(.level == "error")' results.sarif
 
 # Extract messages with locations
-jq -r '.runs[0].results[] | 
+
+jq -r '.runs[0].results[] |
     "\(.ruleId): \(.message.text) at \
     \(.locations[0].physicalLocation.artifactLocation.uri):\
     \(.locations[0].physicalLocation.region.startLine)"' \
@@ -584,7 +618,9 @@ jq -r '.runs[0].results[] |
 Upload SARIF to GitHub for integrated viewing:
 
 ```bash
+
 # Using GitHub CLI
+
 gh api repos/{owner}/{repo}/code-scanning/sarifs \
     -F sarif=@results.sarif \
     -F ref=refs/heads/main \
@@ -596,16 +632,21 @@ gh api repos/{owner}/{repo}/code-scanning/sarifs \
 CodeQL supports multiple SARIF versions:
 
 ```bash
+
 # Latest version (recommended)
+
 --format=sarif-latest
 
 # SARIF 2.1.0
+
 --format=sarifv2.1.0
 
 # Include source code snippets
+
 --sarif-add-snippets
 
 # Add file coverage information
+
 --sarif-add-file-coverage
 ```
 
@@ -677,14 +718,17 @@ This analyzes the database and generates SARIF output.
 #### Step 3: Review results
 
 ```bash
+
 # View with jq
-jq -r '.runs[0].results[] | 
+
+jq -r '.runs[0].results[] |
     "\(.ruleId): \(.message.text) at \
     \(.locations[0].physicalLocation.artifactLocation.uri):\
     \(.locations[0].physicalLocation.region.startLine)"' \
     results/cpp-results.sarif
 
 # Or open in VS Code
+
 code results/cpp-results.sarif
 ```
 
@@ -716,16 +760,21 @@ Run CodeQL analysis regularly:
 ### 2. Database Management
 
 ```bash
+
 # Always build clean for analysis
+
 cmake -B build -G Ninja && ninja -C build clean
 
 # Keep databases fresh
+
 codeql database create --overwrite cpp-db ...
 
 # Clean old databases
+
 rm -rf old-databases/
 
 # Compress for archival
+
 tar -czf cpp-db.tar.gz cpp-db/
 ```
 
@@ -742,16 +791,21 @@ Start with recommended suites:
 For best CodeQL results:
 
 ```cmake
+
 # Use Debug build
+
 cmake -DCMAKE_BUILD_TYPE=Debug
 
 # Enable all warnings
+
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
 
 # Generate compile commands
+
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Disable precompiled headers (can interfere)
+
 set(CMAKE_DISABLE_PRECOMPILE_HEADERS ON)
 ```
 
@@ -767,27 +821,29 @@ on: [push, pull_request]
 jobs:
   analyze:
     runs-on: ubuntu-latest
-    
+
     steps:
+
       - uses: actions/checkout@v3
-      
+
       - name: Install dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y cmake ninja-build
-      
+
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v2
         with:
           languages: cpp
-      
+
       - name: Build
         run: |
           cmake -B build -G Ninja
           ninja -C build
-      
+
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v2
+
 ```
 
 ### 6. Performance Tips
@@ -795,23 +851,31 @@ jobs:
 For large C++ projects:
 
 ```bash
+
 # Use all available cores
+
 --threads=$(nproc)
 
 # Allocate 80% of available RAM
+
 --ram=$(($(free -m | awk '/^Mem:/{print $2}') * 80 / 100))
 
 # Use Ninja for faster builds
+
 cmake -G Ninja
 
 # Parallel build
+
 ninja -j$(nproc)
 
 # Exclude test code if not needed
+
 paths-ignore:
+
   - "test/**"
   - "tests/**"
   - "benchmark/**"
+
 ```
 
 ---

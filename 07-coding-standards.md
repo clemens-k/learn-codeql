@@ -27,11 +27,13 @@ standards checking into your development workflow.
 **Purpose**: Safety-critical software development guidelines
 
 **Versions**:
+
 - **MISRA C:2012** (Amendment 1: 2016, Amendment 2: 2020, Amendment 3: 2024)
 - **MISRA C:2023** (latest, expanded coverage and modernization)
 - **MISRA C++:2023** (latest, replaces C++:2008, supports modern C++)
 
 **Focus Areas**:
+
 - Memory safety
 - Type safety
 - Error handling
@@ -41,6 +43,7 @@ standards checking into your development workflow.
 **Common in**: Automotive, aerospace, medical devices, industrial systems
 
 **What's New in MISRA C++:2023**:
+
 - Modern C++ support (C++11, C++14, C++17 features)
 - Enhanced memory safety rules
 - Improved guidance for templates and smart pointers
@@ -52,11 +55,13 @@ standards checking into your development workflow.
 **Purpose**: Secure coding practices for production software
 
 **Standards**:
+
 - **CERT C Coding Standard**
 - **CERT C++ Coding Standard**
 - **SEI CERT Oracle Coding Standard for Java** (not covered here)
 
 **Focus Areas**:
+
 - Security vulnerabilities
 - Undefined behavior
 - Implementation-defined behavior
@@ -77,13 +82,17 @@ CodeQL provides dedicated compliance query packs through the official
 **Repository**: <https://github.com/github/codeql-coding-standards>
 
 **Installation** (covered in Tutorial 03):
+
 ```bash
+
 # Automatically downloads pre-built query packs
+
 cd lab/03-installation
 ./install-libraries.sh
 ```
 
 **What gets installed**:
+
 - Pre-built MISRA C:2012 query pack
 - Pre-built MISRA C++:2023 query pack
 - Pre-built CERT C query pack
@@ -92,8 +101,11 @@ cd lab/03-installation
 - Precompiled .qlx files for faster analysis
 
 **Version Selection**:
+
 ```bash
+
 # Use specific version
+
 export CODEQL_CODING_STANDARDS_VERSION=v2.50.0
 ./install-libraries.sh
 ```
@@ -101,11 +113,15 @@ export CODEQL_CODING_STANDARDS_VERSION=v2.50.0
 ### MISRA Query Packs
 
 **Available Packs**:
+
 ```bash
+
 # MISRA C:2012
+
 ~/.codeql-home/coding-standards/codeql-coding-standards-c-misra/
 
-# MISRA C++:2023  
+# MISRA C++:2023
+
 ~/.codeql-home/coding-standards/codeql-coding-standards-cpp-misra/
 ```
 
@@ -131,14 +147,18 @@ manual code review. CodeQL automates all decidable rules.
 **Available Packs**:
 
 ```bash
-# CERT C  
+
+# CERT C
+
 ~/.codeql-home/coding-standards/codeql-coding-standards-c-cert/
 
 # CERT C++
+
 ~/.codeql-home/coding-standards/codeql-coding-standards-cpp-cert/
 ```
 
 **Coverage**:
+
 - CERT C Coding Standard - ~100+ automated rules
 - CERT C++ Coding Standard - ~90+ automated rules
 - Focus on security and reliability
@@ -153,13 +173,17 @@ manual code review. CodeQL automates all decidable rules.
 #### List Available MISRA Queries
 
 ```bash
+
 # Find MISRA C++:2023 queries
+
 find ~/.codeql-home/coding-standards/codeql-coding-standards-cpp-misra -name "*.ql"
 
 # Find MISRA C:2012 queries
+
 find ~/.codeql-home/coding-standards/codeql-coding-standards-c-misra -name "*.ql"
 
 # View available query suites
+
 ls ~/.codeql-home/coding-standards/codeql-coding-standards-cpp-misra/codeql-suites/
 ```
 
@@ -180,7 +204,9 @@ codeql database analyze cpp-db \
 Create `misra-compliance.qls`:
 
 ```yaml
+
 # MISRA C++:2023 Compliance Suite
+
 - description: "MISRA C++:2023 compliance checks"
 - queries: .
 - from: ~/.codeql-home/coding-standards/cpp/misra/src
@@ -192,6 +218,7 @@ Create `misra-compliance.qls`:
 - exclude:
     tags:
       - undecidable
+
 ```
 
 Run the suite:
@@ -214,15 +241,18 @@ codeql database analyze cpp-db \
 **Filter by obligation level**:
 
 ```bash
+
 # Required rules only
-jq '.runs[0].results |= 
-    map(select(.rule.properties.tags | 
+
+jq '.runs[0].results |=
+    map(select(.rule.properties.tags |
     contains(["external/misra/obligation/required"])))' \
     misra-results.sarif > misra-required.sarif
 
 # Advisory rules
-jq '.runs[0].results |= 
-    map(select(.rule.properties.tags | 
+
+jq '.runs[0].results |=
+    map(select(.rule.properties.tags |
     contains(["external/misra/obligation/advisory"])))' \
     misra-results.sarif > misra-advisory.sarif
 ```
@@ -230,10 +260,12 @@ jq '.runs[0].results |=
 **Filter by decidability**:
 
 ```bash
+
 # Decidable (automated) rules only
-jq '.runs[0].results |= 
-    map(select(.rule.properties.tags | 
-    contains(["decidable"]) and 
+
+jq '.runs[0].results |=
+    map(select(.rule.properties.tags |
+    contains(["decidable"]) and
     (contains(["undecidable"]) | not)))' \
     misra-results.sarif > misra-decidable.sarif
 ```
@@ -243,13 +275,17 @@ jq '.runs[0].results |=
 #### List Available CERT Queries
 
 ```bash
+
 # Find CERT C++ queries
+
 find ~/.codeql-home/coding-standards/codeql-coding-standards-cpp-cert -name "*.ql"
 
 # Find CERT C queries
+
 find ~/.codeql-home/coding-standards/codeql-coding-standards-c-cert -name "*.ql"
 
 # View available query suites
+
 ls ~/.codeql-home/coding-standards/codeql-coding-standards-cpp-cert/codeql-suites/
 ```
 
@@ -270,7 +306,9 @@ codeql database analyze cpp-db \
 Create `cert-compliance.qls`:
 
 ```yaml
+
 # CERT C/C++ Compliance Suite
+
 - description: "CERT C/C++ secure coding checks"
 - queries: .
 - from: ~/.codeql-home/coding-standards/cpp/cert/src
@@ -284,6 +322,7 @@ Create `cert-compliance.qls`:
 - exclude:
     tags:
       - experimental
+
 ```
 
 Run the suite:
@@ -314,13 +353,16 @@ CERT rules are organized by topic:
 **Filter by category**:
 
 ```bash
+
 # Memory management rules (MEM)
-jq '.runs[0].results |= 
+
+jq '.runs[0].results |=
     map(select(.rule.id | test("cpp/cert/mem")))' \
     cert-results.sarif > cert-mem-rules.sarif
 
 # Integer rules (INT)
-jq '.runs[0].results |= 
+
+jq '.runs[0].results |=
     map(select(.rule.id | test("cpp/cert/int")))' \
     cert-results.sarif > cert-int-rules.sarif
 ```
@@ -337,6 +379,7 @@ jq '.runs[0].results |=
 **Result Format**:
 
 ```json
+
 {
   "ruleId": "cpp/misra/rule-6-5-1",
   "message": {
@@ -351,9 +394,11 @@ jq '.runs[0].results |=
     ]
   }
 }
+
 ```
 
 **Rule ID Format**: `cpp/misra/rule-X-Y-Z`
+
 - X = Category number
 - Y = Subcategory
 - Z = Rule number within subcategory
@@ -370,6 +415,7 @@ jq '.runs[0].results |=
 ```
 
 **Rule ID Format**: `cpp/misra/rule-X-Y-Z`
+
 - X = Chapter
 - Y = Section
 - Z = Rule number
@@ -403,6 +449,7 @@ jq '.runs[0].results |=
 ```
 
 **Rule ID Format**: `cpp/cert/[category][number]-[c|cpp]`
+
 - category = Rule category (arr, dcl, env, etc.)
 - number = Rule number
 - c/cpp = C or C++ standard
@@ -424,7 +471,9 @@ jq '.runs[0].results |=
 ### Basic Compliance Summary
 
 ```bash
+
 #!/bin/bash
+
 # Generate compliance summary
 
 SARIF_FILE=$1
@@ -434,45 +483,50 @@ echo "================="
 echo ""
 
 # Total violations
+
 echo "Total Violations: $(jq '.runs[0].results | length' $SARIF_FILE)"
 echo ""
 
 # By obligation (MISRA)
+
 echo "MISRA by Obligation:"
-jq -r '.runs[0].results | 
-    group_by(.rule.properties.tags | 
-    map(select(startswith("external/misra/obligation"))) | .[0]) | 
-    map("\(.[ 0].rule.properties.tags | 
+jq -r '.runs[0].results |
+    group_by(.rule.properties.tags |
+    map(select(startswith("external/misra/obligation"))) | .[0]) |
+    map("\(.[ 0].rule.properties.tags |
     map(select(startswith("external/misra/obligation"))) | .[0]): \
-\(length) violations") | 
+\(length) violations") |
     .[]' $SARIF_FILE 2>/dev/null || echo "  No MISRA data"
 
 echo ""
 
 # By category (CERT)
+
 echo "CERT by Category:"
-jq -r '.runs[0].results | 
-    map(.ruleId | match("cert/([a-z]+)[0-9]+-") | .captures[0].string) | 
-    group_by(.) | 
-    map("\(.[0]): \(length) violations") | 
-    sort | 
+jq -r '.runs[0].results |
+    map(.ruleId | match("cert/([a-z]+)[0-9]+-") | .captures[0].string) |
+    group_by(.) |
+    map("\(.[0]): \(length) violations") |
+    sort |
     .[]' $SARIF_FILE 2>/dev/null || echo "  No CERT data"
 ```
 
 ### CSV Export for Tracking
 
 ```bash
+
 # Export to CSV for spreadsheet tracking
-jq -r '.runs[0].results[] | 
+
+jq -r '.runs[0].results[] |
     [
         .ruleId,
         .level,
-        (.rule.properties.tags | 
+        (.rule.properties.tags |
         map(select(startswith("external/"))) | .[0] // "N/A"),
         .message.text,
         .locations[0].physicalLocation.artifactLocation.uri,
         .locations[0].physicalLocation.region.startLine
-    ] | 
+    ] |
     @csv' \
     misra-results.sarif > misra-violations.csv
 ```
@@ -482,10 +536,13 @@ jq -r '.runs[0].results[] |
 Using `sarif-multitool`:
 
 ```bash
+
 # Install sarif-multitool
+
 dotnet tool install -g Sarif.Multitool
 
 # Convert to HTML
+
 sarif convert misra-results.sarif \
     --output misra-report.html \
     --output-format html
@@ -496,18 +553,20 @@ sarif convert misra-results.sarif \
 Generate a compliance matrix showing rule coverage:
 
 ```bash
+
 #!/bin/bash
+
 # Generate compliance matrix
 
 echo "Rule ID,Status,Violations,Files Affected" > compliance-matrix.csv
 
-jq -r '.runs[0].tool.driver.rules[] | 
-    .id as $rule | 
-    ([.id, 
+jq -r '.runs[0].tool.driver.rules[] |
+    .id as $rule |
+    ([.id,
       "automated",
       ($results | map(select(.ruleId == $rule)) | length),
-      ($results | map(select(.ruleId == $rule)) | 
-       map(.locations[0].physicalLocation.artifactLocation.uri) | 
+      ($results | map(select(.ruleId == $rule)) |
+       map(.locations[0].physicalLocation.artifactLocation.uri) |
        unique | length)
     ] | @csv)' \
     --argjson results "$(jq '.runs[0].results' misra-results.sarif)" \
@@ -526,23 +585,28 @@ Create `.codeql/misra-config.yml`:
 name: "MISRA Compliance Configuration"
 
 # Disapplied rules (with justification)
+
 disapplied-rules:
+
   - rule: "5-2-10"
     justification: "Bitwise operations required for hardware interface"
     approved-by: "Tech Lead"
     date: "2024-01-15"
-  
+
   - rule: "7-3-1"
     justification: "Global namespace used for C compatibility"
     approved-by: "Architect"
     date: "2024-01-20"
 
 # Deviation records
+
 deviations:
+
   - file: "src/legacy/old_code.cpp"
     rules: ["5-0-1", "6-4-1"]
     justification: "Legacy code under migration plan"
     plan: "Refactor by Q2 2024"
+
 ```
 
 ### Baseline Suppressions
@@ -550,7 +614,9 @@ deviations:
 Create a baseline of existing violations:
 
 ```bash
+
 # Generate baseline
+
 codeql database analyze cpp-db \
     misra-compliance.qls \
     --format=sarif-latest \
@@ -558,6 +624,7 @@ codeql database analyze cpp-db \
     --output=baseline.sarif
 
 # On subsequent runs, compare
+
 codeql database analyze cpp-db \
     misra-compliance.qls \
     --format=sarif-latest \
@@ -565,6 +632,7 @@ codeql database analyze cpp-db \
     --output=current.sarif
 
 # Find new violations
+
 jq --slurpfile baseline baseline.sarif \
    '.runs[0].results - $baseline[0].runs[0].results' \
    current.sarif > new-violations.sarif
@@ -577,16 +645,19 @@ jq --slurpfile baseline baseline.sarif \
 ### 1. Phased Adoption
 
 **Phase 1: Awareness**
+
 - Run compliance checks without enforcement
 - Generate reports for visibility
 - Identify most common violations
 
 **Phase 2: Prevention**
+
 - Enforce critical rules in CI/CD
 - Block builds on required rule violations
 - Allow advisory rule violations with review
 
 **Phase 3: Full Compliance**
+
 - Enforce all applicable rules
 - Document all deviations
 - Regular compliance audits
@@ -596,6 +667,7 @@ jq --slurpfile baseline baseline.sarif \
 Start with high-impact rules:
 
 **MISRA C++:2023 Priority Rules**:
+
 - 6-5-1: Single loop counter
 - 8-4-2: Function parameter identifiability
 - 9-3-1: const correctness
@@ -603,6 +675,7 @@ Start with high-impact rules:
 - 15-1-2: NULL pointer checks
 
 **CERT Priority Rules**:
+
 - arr30-c: Array bounds
 - err50-cpp: Error handling
 - mem50-cpp: Memory safety
@@ -638,16 +711,17 @@ jobs:
   misra-compliance:
     runs-on: ubuntu-latest
     steps:
+
       - uses: actions/checkout@v3
-      
+
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v2
         with:
           languages: cpp
-      
+
       - name: Build
         run: cmake -B build && cmake --build build
-      
+
       - name: MISRA Compliance Check
         run: |
           codeql database analyze codeql-db \
@@ -655,23 +729,24 @@ jobs:
             --format=sarif-latest \
             --threads=0 \
             --output=misra-results.sarif
-      
+
       - name: Check for Required Rule Violations
         run: |
-          VIOLATIONS=$(jq '[.runs[0].results[] | 
-            select(.rule.properties.tags | 
-            contains(["external/misra/obligation/required"]))] | 
+          VIOLATIONS=$(jq '[.runs[0].results[] |
+            select(.rule.properties.tags |
+            contains(["external/misra/obligation/required"]))] |
             length' misra-results.sarif)
-          
+
           if [ "$VIOLATIONS" -gt 0 ]; then
             echo "Found $VIOLATIONS required rule violations"
             exit 1
           fi
-      
+
       - name: Upload SARIF
         uses: github/codeql-action/upload-sarif@v2
         with:
           sarif_file: misra-results.sarif
+
 ```
 
 ### 5. Regular Audits
@@ -679,7 +754,9 @@ jobs:
 Schedule regular compliance audits:
 
 ```bash
+
 #!/bin/bash
+
 # Monthly compliance audit script
 
 DATE=$(date +%Y-%m)
@@ -687,24 +764,29 @@ REPORT_DIR="audit-reports/$DATE"
 mkdir -p "$REPORT_DIR"
 
 # Run all compliance checks
+
 codeql database create cpp-db --language=cpp
 
 # MISRA check
+
 codeql database analyze cpp-db misra-compliance.qls \
     --format=sarif-latest \
     --threads=0 \
     --output="$REPORT_DIR/misra-results.sarif"
 
 # CERT check
+
 codeql database analyze cpp-db cert-compliance.qls \
     --format=sarif-latest \
     --threads=0 \
     --output="$REPORT_DIR/cert-results.sarif"
 
 # Generate reports
+
 ./generate-compliance-report.sh "$REPORT_DIR"
 
 # Send notification
+
 echo "Monthly compliance audit complete. Results in $REPORT_DIR" | \
     mail -s "Compliance Audit $DATE" team@example.com
 ```
@@ -738,12 +820,15 @@ lab/07-coding-standards/
 cd lab/07-coding-standards
 
 # Run MISRA checks
+
 ./run-misra-checks.sh
 
 # Run CERT checks
+
 ./run-cert-checks.sh
 
 # Generate compliance report
+
 ./generate-report.sh results/
 ```
 

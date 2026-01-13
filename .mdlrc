@@ -1,0 +1,26 @@
+# Markdown linting configuration for learn-codeql
+# Rules prefixed with ~ are disabled
+
+# MD005: Inconsistent indentation for list items at the same level
+#        Disabled to allow flexible indentation under numbered lists
+rules "~MD005"
+
+# MD006: Consider starting bulleted lists at the beginning of the line
+#        Disabled to allow indented sub-lists under numbered items
+rule "~MD006"
+
+# MD007: Unordered list indentation
+#        Disabled because project uses 3-space indentation for sub-bullets
+rule "~MD007"
+
+# MD013: Line length
+#        Disabled because 80-character limit is too strict for technical docs
+rule "~MD013"
+
+# MD029: Ordered list item prefix
+#        Disabled to allow both sequential (1,2,3) and uniform (1,1,1) numbering
+rule "~MD029"
+
+# MD036: Emphasis used instead of a header
+#        Disabled to allow bold text without headers in specific contexts
+rule "~MD036"

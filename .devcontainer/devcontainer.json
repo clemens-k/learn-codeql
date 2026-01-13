@@ -29,7 +29,8 @@
         "ms-vscode.cpptools",
         "ms-vscode.cmake-tools",
         "rust-lang.rust-analyzer",
-        "ms-sarifvscode.sarif-viewer"
+        "ms-sarifvscode.sarif-viewer",
+        "DavidAnson.vscode-markdownlint"
       ],
       "settings": {
         "terminal.integrated.defaultProfile.linux": "zsh",

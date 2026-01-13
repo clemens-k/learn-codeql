@@ -61,13 +61,17 @@ For typical Rust projects:
 CodeQL works with any standard Rust installation. For best results:
 
 ```bash
+
 # Use stable toolchain
+
 rustup default stable
 
 # Keep toolchain updated
+
 rustup update
 
 # Install necessary components
+
 rustup component add rustfmt clippy
 ```
 
@@ -134,16 +138,21 @@ codeql database create rust-db \
 Common scenarios:
 
 ```bash
+
 # Build with specific features
+
 --command="cargo build --features feature1,feature2"
 
 # Build in release mode
+
 --command="cargo build --release"
 
 # Build specific workspace member
+
 --command="cargo build -p my-crate"
 
 # Build all targets
+
 --command="cargo build --all-targets"
 ```
 
@@ -180,7 +189,9 @@ root. Create this file for custom settings:
 ```yaml
 name: "my-rust-project"
 languages:
+
   - rust
+
 primaryLanguage: rust
 ```
 
@@ -190,9 +201,11 @@ To skip certain directories (e.g., generated code):
 
 ```yaml
 paths-ignore:
+
   - target/
   - .cargo/
   - tests/fixtures/
+
 ```
 
 ### Custom Queries Configuration
@@ -218,19 +231,19 @@ Create `.codeqlmanifest.json` to specify query metadata:
 CodeQL provides several pre-built query suites for Rust:
 
 1. **`rust-security-extended.qls`**
-   - All security-related queries
-   - Best for security audits
-   - Higher false positive rate
+  - All security-related queries
+  - Best for security audits
+  - Higher false positive rate
 
 2. **`rust-security-and-quality.qls`**
-   - Security + code quality checks
-   - **Recommended starting point**
-   - Balanced precision/recall
+  - Security + code quality checks
+  - **Recommended starting point**
+  - Balanced precision/recall
 
 3. **`rust-code-scanning.qls`**
-   - Optimized for GitHub Code Scanning
-   - Lower false positives
-   - Production-ready queries
+  - Optimized for GitHub Code Scanning
+  - Lower false positives
+  - Production-ready queries
 
 ### Running Analysis
 
@@ -259,15 +272,19 @@ codeql database analyze rust-db \
 If you cloned the CodeQL repository:
 
 ```bash
+
 # Security and quality (recommended)
+
 $CODEQL_HOME/codeql-repo/rust/ql/src/codeql-suites/\
 rust-security-and-quality.qls
 
 # Security extended
+
 $CODEQL_HOME/codeql-repo/rust/ql/src/codeql-suites/\
 rust-security-extended.qls
 
 # Code scanning
+
 $CODEQL_HOME/codeql-repo/rust/ql/src/codeql-suites/\
 rust-code-scanning.qls
 ```
@@ -277,7 +294,9 @@ rust-code-scanning.qls
 To run individual queries:
 
 ```bash
+
 # Find all unwrap() calls
+
 codeql database analyze rust-db \
     $CODEQL_HOME/codeql-repo/rust/ql/src/\
 Security/CWE-754/UnwrapOnResult.ql \
@@ -336,7 +355,7 @@ fn calculate(a: i32, b: i32) -> Option<i32> {
 
 ## 📄 SARIF Output Format
 
-### What is SARIF?
+### What is SARIF
 
 **SARIF** (Static Analysis Results Interchange Format) is a JSON-based
 format for static analysis tools. It's an OASIS standard (ISO/IEC
@@ -399,7 +418,9 @@ A CodeQL SARIF file contains:
 **1. VS Code SARIF Viewer Extension:**
 
 ```bash
+
 # Install the extension
+
 code --install-extension MS-SarifVSCode.sarif-viewer
 ```
 
@@ -408,16 +429,21 @@ Open any `.sarif` file in VS Code for interactive viewing.
 **2. Command-line with `jq`:**
 
 ```bash
+
 # Count total results
+
 jq '.runs[0].results | length' results.sarif
 
 # List all rule IDs
+
 jq '.runs[0].results[].ruleId' results.sarif
 
 # Show error-level findings
+
 jq '.runs[0].results[] | select(.level == "error")' results.sarif
 
 # Extract messages
+
 jq '.runs[0].results[] | "\(.ruleId): \(.message.text)"' \
     results.sarif
 ```
@@ -427,7 +453,9 @@ jq '.runs[0].results[] | "\(.ruleId): \(.message.text)"' \
 Upload SARIF to GitHub:
 
 ```bash
+
 # Using GitHub CLI
+
 gh api repos/{owner}/{repo}/code-scanning/sarifs \
     -F sarif=@results.sarif \
     -F ref=refs/heads/main \
@@ -439,13 +467,17 @@ gh api repos/{owner}/{repo}/code-scanning/sarifs \
 CodeQL supports multiple SARIF versions:
 
 ```bash
+
 # Latest version (recommended)
+
 --format=sarif-latest
 
 # SARIF 2.1.0
+
 --format=sarifv2.1.0
 
 # Include Markdown in results
+
 --sarif-add-snippets
 ```
 
@@ -515,14 +547,17 @@ This analyzes the database and generates SARIF output.
 #### Step 3: Review results
 
 ```bash
+
 # View with jq
-jq '.runs[0].results[] | 
+
+jq '.runs[0].results[] |
     "\(.ruleId): \(.message.text) at \(.locations[0].
     physicalLocation.artifactLocation.uri):\(.locations[0].
     physicalLocation.region.startLine)"' \
     results/rust-results.sarif
 
 # Or open in VS Code
+
 code results/rust-results.sarif
 ```
 
@@ -554,13 +589,17 @@ Run CodeQL analysis regularly:
 ### 2. Database Management
 
 ```bash
+
 # Keep databases fresh
+
 codeql database create --overwrite rust-db ...
 
 # Clean old databases
+
 rm -rf old-databases/
 
 # Compress for archival
+
 tar -czf rust-db.tar.gz rust-db/
 ```
 
@@ -584,20 +623,22 @@ on: [push, pull_request]
 jobs:
   analyze:
     runs-on: ubuntu-latest
-    
+
     steps:
+
       - uses: actions/checkout@v3
-      
+
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v2
         with:
           languages: rust
-      
+
       - name: Build
         run: cargo build --all-targets
-      
+
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v2
+
 ```
 
 ### 5. Performance Tips
@@ -605,20 +646,28 @@ jobs:
 For large Rust projects:
 
 ```bash
+
 # Use more threads
+
 --threads=$(nproc)
 
 # Allocate sufficient RAM
+
 --ram=$(($(free -m | awk '/^Mem:/{print $2}') * 80 / 100))
 
 # Build in release mode for faster extraction
+
 --command="cargo build --release"
 
 # Exclude test code if not needed
+
 # (in codeql-database.yml)
+
 paths-ignore:
+
   - "tests/**"
   - "benches/**"
+
 ```
 
 ---

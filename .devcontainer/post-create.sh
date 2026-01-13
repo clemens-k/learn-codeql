@@ -25,7 +25,8 @@ echo "🛠️  Installing additional tools..."
 sudo apt-get install -y \
     jq \
     tree \
-    ripgrep
+    ripgrep \
+    markdownlint
 
 # Create directory for CodeQL (but don't install it yet)
 echo "📁 Creating CodeQL home directory..."
