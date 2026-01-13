@@ -20,37 +20,56 @@ proper license from GitHub!
 ### Tutorials
 
 1. **[01-introduction.md](01-introduction.md)** - Introduction to CodeQL
-   - What is CodeQL and how it works
-   - Key concepts: code as data, declarative queries, static analysis
-   - History and background of CodeQL/Semmle
+  - What is CodeQL and how it works
+  - Key concepts: code as data, declarative queries, static analysis
+  - History and background of CodeQL/Semmle
 
 2. **[02-architecture.md](02-architecture.md)** - CodeQL Architecture & Tech Stack
-   - High-level architecture overview
-   - The three phases: extraction, database creation, query execution
-   - Core technologies and components
+  - High-level architecture overview
+  - The three phases: extraction, database creation, query execution
+  - Core technologies and components
 
 3. **[03-installation.md](03-installation.md)** - Installing & Configuring CodeQL
-   - Quick start with GitHub Codespaces
-   - Local installation guide
-   - VS Code extension setup
+  - Quick start with GitHub Codespaces
+  - Local installation guide
+  - VS Code extension setup
 
 4. **[04-rust-setup.md](04-rust-setup.md)** - Rust Setup for CodeQL
-   - Rust-specific requirements for CodeQL
-   - Creating CodeQL databases for Rust projects
-   - Running security and quality queries
-   - Understanding SARIF output format
+  - Rust-specific requirements for CodeQL
+  - Creating CodeQL databases for Rust projects
+  - Running security and quality queries
+  - Understanding SARIF output format
 
 5. **[05-cpp-cmake-setup.md](05-cpp-cmake-setup.md)** - C++ and CMake Setup for CodeQL
-   - C++-specific requirements and compiler support
-   - CMake integration and build system configuration
-   - Creating CodeQL databases for C++ projects
-   - Running built-in security queries
+  - C++-specific requirements and compiler support
+  - CMake integration and build system configuration
+  - Creating CodeQL databases for C++ projects
+  - Running built-in security queries
 
 6. **[06-built-in-queries.md](06-built-in-queries.md)** - Using Built-in Query Suites
-   - Understanding query packs and query suites
-   - Available suites for C++ and Rust (code-scanning, security-and-quality, security-extended)
-   - Running and customizing query execution
-   - Interpreting results by severity and precision
+  - Understanding query packs and query suites
+  - Available suites for C++ and Rust (code-scanning, security-and-quality, security-extended)
+  - Running and customizing query execution
+  - Interpreting results by severity and precision
+
+7. **[07-coding-standards.md](07-coding-standards.md)** - MISRA & CERT Coding Standards
+  - MISRA C/C++ guidelines support
+  - CERT C/C++ secure coding standards
+  - Running compliance checks with CodeQL
+  - Interpreting compliance results
+
+8. **[08-sarif-output.md](08-sarif-output.md)** - SARIF Output Format
+  - Understanding the SARIF format
+  - Processing and filtering SARIF files
+  - Generating reports and metrics
+  - CI/CD integration patterns
+
+9. **[99-resources.md](99-resources.md)** - Useful Resources
+  - Official CodeQL documentation and repositories
+  - Learning resources and tutorials
+  - MISRA and CERT standards documentation
+  - Community resources and tools
+  - Query libraries and packs
 
 ### Hands-On Labs
 
@@ -169,12 +188,14 @@ See `lab/08-sarif-output/README.md` for detailed instructions.
 1. Click **Code** → **Codespaces** → **Create codespace**
 2. Wait for the environment to build (~2-3 minutes)
 3. Start with the lab exercises:
+
    ```bash
    cd lab/03-installation
    cat README.md
    ```
 
 The Codespace includes:
+
 - C++ compiler and CMake
 - Rust toolchain
 - VS Code with CodeQL extension
@@ -187,6 +208,7 @@ If you prefer to work locally, follow the installation guide in `03-installation
 ## 📋 Prerequisites
 
 For local development:
+
 - **C++ Development**: GCC or Clang, CMake, Ninja (or Make)
 - **Rust Development**: rustc, cargo (install via rustup)
 - **Editor**: VS Code with CodeQL extension
@@ -210,7 +232,7 @@ for educational purposes. **Do not use this code in production environments.**
 
 ## 📄 License
 
-This is an educational resource for learning CodeQL.
+MIT
 
 ## 🤝 Contributing
 

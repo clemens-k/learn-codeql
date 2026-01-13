@@ -14,98 +14,6 @@ Create a comprehensive learning resource for CodeQL focusing on:
 
 ## 📦 Work Packages
 
-### ✅ WP1: Project Planning
-
-- [x] Create TODO.md with work breakdown
-
-### 📚 WP2: Introduction & Fundamentals (Beginner)
-
-- [x] `01-introduction.md`
-  - What is CodeQL?
-  - History and background
-  - Use cases and benefits
-  - When to use CodeQL
-
-### 🏗️ WP3: Architecture & Tech Stack (Beginner → Advanced)
-
-- [x] `02-architecture.md`
-  - Tech stack overview
-  - Internal architecture
-  - How CodeQL works (query engine, databases)
-  - Dependencies and requirements
-  - Input files (source code, databases)
-  - Output files (SARIF, other formats?)
-
-### ⚙️ WP4: Installation & Configuration (Beginner)
-
-- [x] `03-installation.md`
-  - Installing CodeQL CLI
-  - Setting up VS Code extension
-  - System requirements
-  - Basic configuration
-
-### 🦀 WP5: Rust Setup (Beginner)
-
-- [X] `04-rust-setup.md`
-  - Rust-specific requirements
-  - Creating CodeQL databases for Rust
-  - Configuration for Rust projects
-  - Running built-in queries
-  - SARIF output handling
-
-### 🔧 WP6: C++/CMake Setup (Beginner)
-
-- [x] `05-cpp-cmake-setup.md`
-  - C++ specific requirements
-  - CMake integration
-  - Creating CodeQL databases for C++
-  - Configuration for CMake projects
-  - Running built-in queries
-  - SARIF output handling
-
-### 🔍 WP7: Using Built-in Query Suites (Beginner)
-
-- [x] `06-built-in-queries.md`
-  - Overview of standard query packs
-  - Security queries
-  - Code quality queries
-  - Running query suites
-  - Interpreting results
-
-### 📏 WP8: MISRA & CERT Guidelines (Beginner → Intermediate)
-
-- [x] `07-coding-standards.md`
-  - MISRA C/C++ guidelines support
-  - CERT coding standards
-  - Available query packs
-  - Running compliance checks
-  - Configuration for standards
-  - Reporting and compliance
-- [x] Lab 07: Coding Standards Compliance
-  - MISRA C++:2008 compliance checking
-  - CERT C/C++ secure coding checks
-  - Compliance reporting and filtering
-  - Custom compliance query suites
-  - CI/CD integration examples
-
-### 📄 WP9: SARIF Output Format (Beginner → Intermediate)
-
-- [x] `08-sarif-output.md`
-  - What is SARIF?
-  - SARIF structure and format
-  - Viewing and processing SARIF files
-  - Other output formats supported by CodeQL
-  - Integrating with CI/CD
-  - Tooling ecosystem
-- [x] Lab 08: SARIF Output Processing
-  - SARIF file structure exploration
-  - Filtering and analyzing results with jq
-  - Generating reports (summary, HTML, CSV)
-  - Baseline management and comparison
-  - Merging multiple SARIF files
-  - Metrics extraction and dashboards
-  - CI/CD integration patterns
-
 ### 🔧 WP10: Advanced Configuration (Intermediate → Advanced)
 
 - [ ] `09-advanced-config.md`
@@ -132,16 +40,7 @@ Create a comprehensive learning resource for CodeQL focusing on:
   - Testing queries
   - Query libraries
 
-### 🔗 WP13: Useful Resources
 
-- [ ] `12-useful-links.md`
-  - Official documentation
-  - GitHub repositories
-  - Community resources
-  - Tools and extensions
-  - Query libraries
-  - Learning resources
-  - MISRA/CERT resources
 
 ### 📖 WP14: Main README
 
@@ -164,7 +63,7 @@ Create a comprehensive learning resource for CodeQL focusing on:
 
 ### Formatting Standards
 
-- ✅ Markdown format
+- ✅ Linted Markdown format
 - ✅ Icons for visual appeal
 - ✅ Max 80 character column width
 - ✅ Code blocks with syntax highlighting
@@ -173,20 +72,20 @@ Create a comprehensive learning resource for CodeQL focusing on:
 ### Content Progression
 
 1. **Beginner Topics First**:
-   - Installation
-   - Basic usage
-   - Running existing queries
-   - Output interpretation
+  - Installation
+  - Basic usage
+  - Running existing queries
+  - Output interpretation
 
 2. **Intermediate Topics**:
-   - Configuration
-   - Standards compliance
-   - CI/CD integration
+  - Configuration
+  - Standards compliance
+  - CI/CD integration
 
 3. **Advanced Topics Last**:
-   - Custom query development
-   - Internal architecture details
-   - Performance optimization
+  - Custom query development
+  - Internal architecture details
+  - Performance optimization
 
 ---
 
@@ -212,7 +111,7 @@ Create a comprehensive learning resource for CodeQL focusing on:
 
 - Start with beginner-friendly content
 - Layer in technical depth progressively
-- Include practical examples throughout
+- Include practical examples with labs
 - Focus on Rust and C++ specifics
 - Emphasize SARIF output format
 - Include useful links compilation
