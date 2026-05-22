@@ -3,6 +3,8 @@
 #include <cstdlib>
 #include <iostream>
 
+/* testing the fingerprinting :-D */
+
 // CWE-120: Buffer overflow vulnerability
 void buffer_overflow_example(const char* input) {
     char buffer[10];
