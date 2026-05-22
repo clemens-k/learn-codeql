@@ -43,7 +43,8 @@ jobs:
       matrix:
         include:
         - language: c-cpp
-          build-mode: autobuild
+          # build-mode: autobuild
+          build-mode: none        # codeql can analyze the code without building it! with less precision of course...
         - language: rust
           build-mode: none
         # If you are analyzing a compiled language, you can modify the 'build-mode' for that language to customize how
