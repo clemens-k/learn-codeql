@@ -3,6 +3,7 @@
 ## Basic SARIF Operations
 
 ### View SARIF File
+
 ```bash
 # Pretty print
 jq . results.sarif | less
@@ -13,6 +14,7 @@ jq '.runs[0].results[0]' results.sarif
 ```
 
 ### Count and Summary
+
 ```bash
 # Total findings
 jq '.runs[0].results | length' results.sarif
