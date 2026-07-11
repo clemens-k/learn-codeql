@@ -6,7 +6,7 @@ set -e
 CODEQL_HOME="$HOME/.codeql-home"
 DB_DIR="$(pwd)/databases/test-cpp-db"
 RESULTS_DIR="$(pwd)/results"
-QUERY_SUITE="codeql/misra-cpp-coding-standards"
+QUERY_SUITES="codeql/cpp-queries:codeql-suites/cpp-code-scanning.qls codeql/cert-cpp-coding-standards:codeql-suites/cert-cpp-l1.qls codeql/cert-cpp-coding-standards:codeql-suites/cert-cpp-l2.qls"
 
 echo "🔍 Analyzing C++ Database with CodeQL"
 echo "======================================"
@@ -28,11 +28,11 @@ echo "Query suite: $QUERY_SUITE"
 echo ""
 
 codeql database analyze "$DB_DIR" \
-    "$QUERY_SUITE" \
     --format=sarif-latest \
     --output="$RESULTS_DIR/cpp-results.sarif" \
     --threads=0 \
-    --ram=8192
+    --ram=8192 \
+    $QUERY_SUITES
 
 echo ""
 echo "✅ Analysis complete!"
