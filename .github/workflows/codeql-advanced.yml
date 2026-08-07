@@ -16,6 +16,7 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
+  workflow_dispatch:
 
 jobs:
   analyze:
@@ -42,7 +43,8 @@ jobs:
       matrix:
         include:
         - language: c-cpp
-          build-mode: autobuild
+          # build-mode: autobuild
+          build-mode: none        # codeql can analyze the code without building it! with less precision of course...
         - language: rust
           build-mode: none
         # If you are analyzing a compiled language, you can modify the 'build-mode' for that language to customize how
@@ -63,7 +65,7 @@ jobs:
       with:
         languages: ${{ matrix.language }}
         build-mode: ${{ matrix.build-mode }}
-        queries: default
+        # queries: default
         # queries: security-extended,security-and-quality
         # If you wish to specify custom queries, you can do so here or in a config file.
         # By default, queries listed here will override any specified in a config file.
